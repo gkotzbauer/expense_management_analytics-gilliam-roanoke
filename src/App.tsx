@@ -11,22 +11,6 @@ function App() {
       try {
         console.log('Starting to fetch Excel data...')
         
-        // Try backend first, then Vercel API, then static file
-        let response = await fetch('http://localhost:3001/api/data')
-        console.log('Localhost response:', response.status, response.ok)
-        
-        if (!response.ok) {
-          // Try Vercel API endpoint
-          console.log('Trying Vercel API...')
-          response = await fetch('/api/data')
-          console.log('Vercel API response:', response.status, response.ok)
-        }
-        
-        if (!response.ok) {
-          // Fallback to static file in public directory
-          console.log('Trying static file...')
-          response = await fetch('/P&L expense processed data through June 2025 v2.xlsx')
-          console.log('Static file response:', response.status, response.ok)
         }
         
         if (!response.ok) throw new Error('Failed to fetch Excel file')
