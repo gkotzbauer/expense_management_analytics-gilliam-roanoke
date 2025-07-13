@@ -1,0 +1,19 @@
+services:
+  # Backend API service
+  - type: web
+    name: expense-analytics-backend-gilliam-roanoke
+    env: node
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /api/test
+
+  # Frontend static site
+  - type: static
+    name: expense-analytics-frontend-gilliam-roanoke
+    plan: free
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
