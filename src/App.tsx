@@ -10,7 +10,8 @@ function App() {
     const fetchExcel = async () => {
       try {
         console.log("Starting to fetch Excel data...")
-        const response = await fetch("/P&L expense processed data through June 2025 v2.xlsx")
+        const timestamp = new Date().getTime()
+        const response = await fetch(`/P&L Roanoke Processed for Publishing to Dashboard.xlsx?t=${timestamp}`)
         console.log("Response status:", response.status, response.ok)
         
         if (!response.ok) throw new Error("Failed to fetch Excel file")
