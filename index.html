@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Margin Diagnostic Performance Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .upload-section {
+            margin-bottom: 30px;
+        }
+
+        .upload-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-container h2 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .upload-container p {
+            color: #718096;
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 3px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background-color: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-content p {
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+
+        .upload-link {
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #a0aec0 !important;
+        }
+
+        .sample-data-option {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .sample-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: transform 0.2s ease;
+        }
+
+        .sample-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .data-status {
+            background: #f0fff4;
+            border: 1px solid #68d391;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #2f855a;
+        }
+
+        .data-status.error {
+            background: #fed7d7;
+            border-color: #fc8181;
+            color: #c53030;
+        }
+
+        .filters-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .filter-group {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-group h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .multi-select {
+            position: relative;
+            min-height: 40px;
+        }
+
+        .multi-select-button {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .multi-select-button:hover {
+            border-color: #667eea;
+        }
+
+        .multi-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 999999;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .multi-select-dropdown.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f7fafc;
+        }
+
+        .dropdown-item input[type="checkbox"] {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .selected-count {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+        }
+
+        .insights-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .insights-section h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .insight-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .chart-container h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .export-btn.secondary {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .export-btn.secondary:hover {
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background-color: #f7fafc;
+            font-weight: 600;
+            color: #2d3748;
+            position: sticky;
+            top: 0;
+        }
+
+        .center-column {
+            text-align: center !important;
+        }
+
+        .projection-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .projection-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .projection-header h2 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .projection-header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        .projection-input-section {
+            display: flex;
+            align-items: end;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-group label {
+            color: #2d3748;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .input-group input {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            min-width: 200px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .filters-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .export-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Margin Diagnostic Performance Dashboard</h1>
+            <p>Comprehensive margin insights to drive performance optimization and profitability management</p>
+            <button onclick="window.dashboard.loadPreloadedData()" style="margin-top: 15px; padding: 10px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease;">
+                🔄 Refresh Data
+            </button>
+        </div>
+
+
+
+        <div id="dashboardContent" class="hidden">
+            <div class="filters-section">
+                <div class="filter-group">
+                    <h3>📂 Category Filter</h3>
+                    <div class="multi-select" id="categoryMultiSelect">
+                        <div class="multi-select-button" onclick="window.dashboard.toggleDropdown('categoryDropdown')">
+                            <span id="categoryButtonText">All Categories Selected</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="multi-select-dropdown" id="categoryDropdown"></div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <h3>📈 Risk Classification</h3>
+                    <div class="multi-select" id="marginMultiSelect">
+                        <div class="multi-select-button" onclick="window.dashboard.toggleDropdown('marginDropdown')">
+                            <span id="marginButtonText">All Classifications Selected</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="multi-select-dropdown" id="marginDropdown"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="insights-section">
+                <h2>🎯 Key Insights</h2>
+                <div class="insight-item" id="expenseOutpacedInsight">
+                    <span style="font-size: 1.2rem;">⚠️ </span>
+                    <strong>Expense Growth Outpaced Profit Growth:</strong> <span id="expenseOutpacedText">Loading...</span>
+                </div>
+                <div class="insight-item" id="topVarianceInsight">
+                    <span style="font-size: 1.2rem;">📈 </span>
+                    <strong>Highest June variance:</strong> <span id="topVarianceText">Loading...</span>
+                </div>
+                <div class="insight-item" id="marginInsight">
+                    <span style="font-size: 1.2rem;">🏆 </span>
+                    <strong>Top 3 Performing Expense Categories (controlled cost relative to change in revenue):</strong> <span id="topMarginText">Loading...</span>
+                </div>
+                <div class="insight-item" id="marketingROIInsight">
+                    <span style="font-size: 1.2rem;">💰 </span>
+                    <strong>Marketing Spend Efficiency:</strong> <span id="marketingROIText">Loading...</span>
+                </div>
+                
+                <div style="margin-top: 20px; font-size: 0.9rem; color: #718096;">
+                    <h4 style="color: #2d3748; margin-bottom: 10px;"><strong>Marketing Spend Efficiency</strong></h4>
+                    <ul style="padding-left: 20px; line-height: 1.6;">
+                        <li><strong>Unclassified:</strong> Average marketing spend below $500 or missing data—unable to assess efficiency.</li>
+                        <li><strong>Under-Leveraged:</strong> Marketing spend grew less than 80% of profit growth—likely room to increase investment.</li>
+                        <li><strong>Efficient:</strong> Marketing spend growth tracked profit growth within ±20% (80–120%)—good ROI.</li>
+                        <li><strong>Inefficient:</strong> Marketing spend grew more than 120% of profit growth—spend outpacing returns, needs review.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>📊 Performance Diagnostic Distribution</h2>
+                <canvas id="performanceChart" width="400" height="300"></canvas>
+                <div style="margin-top: 20px; font-size: 0.9rem; color: #718096;">
+                    <h4 style="color: #2d3748; margin-bottom: 10px;"><strong>Performance Diagnostic Assignment</strong></h4>
+                    <ul style="padding-left: 20px; line-height: 1.6;">
+                        <li><strong>Below Threshold:</strong> Small or one-off expenses whose six-month average is under $500—too minor to move the needle.</li>
+                        <li><strong>Cost Spike – Monitor:</strong> Expenses that jump by more than $1,000 <strong>and</strong> over 10% versus their prior-period average—worth watching for emerging cost issues.</li>
+                        <li><strong>Margin Risk – Investigate:</strong> Expenses are rising faster than profit (and exceed $1,000 in the most recent month)—signaling a real threat to margins that warrants immediate review.</li>
+                        <li><strong>Stable or Fixed – Low Concern:</strong> Regular expenses (average ≥$500) that barely change with profit (≤10% elasticity)—predictable costs with minimal margin impact.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div class="table-header">
+                    <h2>📋 Key Data Detailed View</h2>
+                    <div class="export-buttons">
+                        <button class="export-btn" onclick="window.dashboard.exportFilteredData()">📊 Export Filtered Data</button>
+                        <button class="export-btn secondary" onclick="window.dashboard.exportAllData()">📈 Export All Data</button>
+                    </div>
+                </div>
+                <p style="font-size: 0.9rem; color: #718096; margin-bottom: 15px; font-style: italic;">
+                    <strong>Table Organization:</strong> Categories are ranked by Performance Diagnostic priority - Cost Spike items first, then Margin Risk items, then Stable/Fixed items. Within each priority group, items are sorted by highest June variance. June Expenses data is sourced from Jun 2025 column of your Excel file.
+                </p>
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>June Expenses</th>
+                            <th>June vs. Jan-May Mean</th>
+                            <th class="center-column">Ratio Change (%)</th>
+                            <th class="center-column">Performance Diagnostic</th>
+                            <th>Expense vs Profit Growth Ratio</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <div style="margin-top: 20px; font-size: 0.9rem; color: #718096;">
+                    <h4 style="color: #2d3748; margin-bottom: 10px;"><strong>Performance Diagnostic Definitions</strong></h4>
+                    <ul style="padding-left: 20px; line-height: 1.6;">
+                        <li><strong>"Margin Risk – Investigate":</strong> Expense category showing significant increase requiring immediate management attention</li>
+                        <li><strong>"Cost Spike – Monitor":</strong> Expense category with notable patterns that should be closely monitored</li>
+                        <li><strong>"Stable or Fixed – Low Concern":</strong> Expense category maintaining consistent, predictable cost patterns</li>
+                        <li><strong>"Neutral – Keep Watching":</strong> Expense category with moderate changes requiring ongoing observation</li>
+                    </ul>
+                    
+                    <h4 style="color: #2d3748; margin-bottom: 10px; margin-top: 20px;"><strong>June vs. Jan-May Mean</strong></h4>
+                    <p style="padding-left: 20px; line-height: 1.6;">The dollar‐amount difference between June's expense and the average expense over January–May.</p>
+                    
+                    <h4 style="color: #2d3748; margin-bottom: 10px; margin-top: 20px;"><strong>Expense vs Profit Growth Ratio</strong></h4>
+                    <ul style="padding-left: 20px; line-height: 1.6;">
+                        <li><strong>&gt;1 ⇒</strong> Expense grew faster than profit</li>
+                        <li><strong>&lt;1 ⇒</strong> Expense grew slower than profit</li>
+                        <li><strong>=1 ⇒</strong> Matched growth</li>
+                    </ul>
+                    
+                    <h4 style="color: #2d3748; margin-bottom: 10px; margin-top: 20px;"><strong>Ratio Change (%)</strong></h4>
+                    <p style="padding-left: 20px; line-height: 1.6;">Relative change from the mean of prior months vs. recent month (e.g. 0.2 ⇒ 20% increase)</p>
+                </div>
+            </div>
+
+            <div class="projection-container">
+                <div class="projection-header">
+                    <h2>🔮 Expense Projection Based on Gross Profit Forecast</h2>
+                    <p>Enter an estimated gross profit to see projected expenses for each category</p>
+                    <p style="font-size: 0.9rem; color: #718096; margin-top: 10px;">
+                        <strong>Formula:</strong> Projected Expense = Fixed Cost Estimate + (Marginal Cost per $1 GP × Estimated Gross Profit)
+                    </p>
+                </div>
+                
+                <div class="projection-input-section">
+                    <div class="input-group">
+                        <label for="estimatedGP">Estimated Gross Profit for the Month ($)</label>
+                        <input type="number" id="estimatedGP" value="147081" min="0" step="1000">
+                    </div>
+                    <button class="sample-btn" onclick="window.dashboard.calculateProjections()">Calculate Projections</button>
+                </div>
+
+                <div class="projection-summary">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                            <h3 id="totalProjectedExpenses" style="color: #f56565; font-size: 2rem; font-weight: bold; margin-bottom: 5px;">$0</h3>
+                            <p style="color: #718096; font-size: 0.9rem;">Total Projected Expenses</p>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+                            <h3 id="projectedProfit" style="color: #48bb78; font-size: 2rem; font-weight: bold; margin-bottom: 5px;">$0</h3>
+                            <p style="color: #718096; font-size: 0.9rem;">Projected Profit</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="projection-results">
+                    <div class="table-header">
+                        <h3>📊 Projected Expenses by Category</h3>
+                        <div class="export-buttons">
+                            <button class="export-btn secondary" onclick="window.dashboard.exportProjections()">📈 Export Projections</button>
+                        </div>
+                    </div>
+                    <table id="projectionTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Fixed Cost Estimate</th>
+                                <th>Marginal Cost per $1 GP</th>
+                                <th>Projected Expense</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+                <div class="top-drivers">
+                    <h3>🚀 Top Expense Categories Growing Fastest with Revenue</h3>
+                    <table id="topDriversTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Marginal Cost per $1 GP</th>
+                                <th>Projected Expense</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.dashboard = {
+            originalData: [],
+            filteredData: [],
+            modelData: [],
+            performanceChart: null,
+            isInitialized: false,
+
+            sampleData: [
+                {
+                    "Category": "612100 Medical Billing",
+                    "Jun 2025": 8616,
+                    "June vs Jan–May Avg ($)": 2441,
+                    "Performance Diagnostic Summary": "🔴 Margin Risk – Investigate",
+                    "Margin Leverage Classification": "High Risk",
+                    "Ratio_Change_June_vs_MeanPrior": 0.395,
+                    "Fixed Cost Estimate": 6970.70,
+                    "Marginal Cost per $1 GP": 0,
+                    "ROI Efficiency": 0.5,
+                    "Efficiency Alert": "Expense Outpaced Profit",
+                    "Best Performing (Cost Decline Rank)": "",
+                    "Expense vs Profit Growth Ratio": 1.25,
+                    "Marketing Spend Efficiency": ""
+                },
+                {
+                    "Category": "613500 Employee Health",
+                    "Jun 2025": 1772,
+                    "June vs Jan–May Avg ($)": 526,
+                    "Performance Diagnostic Summary": "🔴 Margin Risk – Investigate",
+                    "Margin Leverage Classification": "High Risk",
+                    "Ratio_Change_June_vs_MeanPrior": 0.422,
+                    "Fixed Cost Estimate": 1460.39,
+                    "Marginal Cost per $1 GP": 0,
+                    "ROI Efficiency": 0.8,
+                    "Efficiency Alert": "Expense Outpaced Profit + Sensitive",
+                    "Best Performing (Cost Decline Rank)": 1,
+                    "Expense vs Profit Growth Ratio": 0.85,
+                    "Marketing Spend Efficiency": ""
+                },
+                {
+                    "Category": "614200 Internet & Social media",
+                    "Jun 2025": 8136,
+                    "June vs Jan–May Avg ($)": 2789,
+                    "Performance Diagnostic Summary": "🟠 Cost Spike – Monitor",
+                    "Margin Leverage Classification": "Normal Risk",
+                    "Ratio_Change_June_vs_MeanPrior": 0.522,
+                    "Fixed Cost Estimate": 6236.58,
+                    "Marginal Cost per $1 GP": 0,
+                    "ROI Efficiency": 0.19,
+                    "Efficiency Alert": "Expense Outpaced Profit",
+                    "Best Performing (Cost Decline Rank)": 2,
+                    "Expense vs Profit Growth Ratio": 1.42,
+                    "Marketing Spend Efficiency": "Inefficient"
+                },
+                {
+                    "Category": "600200 Salaries & Wages - X-Ray",
+                    "Jun 2025": 12230,
+                    "June vs Jan–May Avg ($)": 576,
+                    "Performance Diagnostic Summary": "🟢 Stable or Fixed – Low Concern",
+                    "Margin Leverage Classification": "Normal Risk",
+                    "Ratio_Change_June_vs_MeanPrior": 0.049,
+                    "Fixed Cost Estimate": 23651.26,
+                    "Marginal Cost per $1 GP": -0.0874,
+                    "ROI Efficiency": 0.95,
+                    "Efficiency Alert": "",
+                    "Best Performing (Cost Decline Rank)": 3,
+                    "Expense vs Profit Growth Ratio": 0.78,
+                    "Marketing Spend Efficiency": ""
+                },
+                {
+                    "Category": "600600 Salaries & Wages - Admin",
+                    "Jun 2025": 7240,
+                    "June vs Jan–May Avg ($)": 361,
+                    "Performance Diagnostic Summary": "🟢 Stable or Fixed – Low Concern",
+                    "Margin Leverage Classification": "Normal Risk",
+                    "Ratio_Change_June_vs_MeanPrior": 0.052,
+                    "Fixed Cost Estimate": 10114.30,
+                    "Marginal Cost per $1 GP": -0.0250,
+                    "ROI Efficiency": 0.75,
+                    "Efficiency Alert": "",
+                    "Best Performing (Cost Decline Rank)": "",
+                    "Expense vs Profit Growth Ratio": 0.92,
+                    "Marketing Spend Efficiency": ""
+                },
+                {
+                    "Category": "610400 Building & land rent",
+                    "Jun 2025": 16144,
+                    "June vs Jan–May Avg ($)": 0,
+                    "Performance Diagnostic Summary": "🟢 Stable or Fixed – Low Concern",
+                    "Margin Leverage Classification": "Normal Risk",
+                    "Ratio_Change_June_vs_MeanPrior": 0,
+                    "Fixed Cost Estimate": 16144.00,
+                    "Marginal Cost per $1 GP": 0,
+                    "ROI Efficiency": 1.0,
+                    "Efficiency Alert": "",
+                    "Best Performing (Cost Decline Rank)": "",
+                    "Expense vs Profit Growth Ratio": 1.0,
+                    "Marketing Spend Efficiency": ""
+                },
+                {
+                    "Category": "630000 Royalties",
+                    "Jun 2025": 12183,
+                    "June vs Jan–May Avg ($)": 0,
+                    "Performance Diagnostic Summary": "🟢 Stable or Fixed – Low Concern",
+                    "Margin Leverage Classification": "Normal Risk",
+                    "Ratio_Change_June_vs_MeanPrior": 0,
+                    "Fixed Cost Estimate": 12183.04,
+                    "Marginal Cost per $1 GP": 0,
+                    "ROI Efficiency": 1.0,
+                    "Efficiency Alert": "",
+                    "Best Performing (Cost Decline Rank)": "",
+                    "Expense vs Profit Growth Ratio": 1.0,
+                    "Marketing Spend Efficiency": ""
+                }
+            ],
+
+            // Function to check if a category should be excluded from projections
+            isExcludedFromProjections: function(categoryName) {
+                const category = categoryName.toLowerCase().trim();
+                
+                // Exact exclusions
+                const exactExclusions = [
+                    'net operating income',
+                    'total income',
+                    'gross profit',
+                    'net income',
+                    'unapplied cash payment income',
+                    'total expenses'
+                ];
+                
+                // Pattern exclusions
+                const patternExclusions = [
+                    'total 6', // Catches "Total 600100 Payroll expenses", etc.
+                    '400000 management fees',
+                    '420000 services - doctors',
+                    '430000 medical services (pc)'
+                ];
+                
+                // Check exact matches
+                if (exactExclusions.includes(category)) {
+                    return true;
+                }
+                
+                // Check pattern matches
+                for (let pattern of patternExclusions) {
+                    if (category.includes(pattern)) {
+                        return true;
+                    }
+                }
+                
+                // Check if starts with "total"
+                if (category.startsWith('total ')) {
+                    return true;
+                }
+                
+                return false;
+            },
+
+            init: function() {
+                this.setupFileUpload();
+                this.setupEventListeners();
+            },
+
+            setupFileUpload: function() {
+                const uploadArea = document.getElementById('uploadArea');
+                const fileInput = document.getElementById('fileInput');
+                const useSampleDataBtn = document.getElementById('useSampleData');
+
+                if (uploadArea && fileInput) {
+                    uploadArea.addEventListener('click', () => fileInput.click());
+                    fileInput.addEventListener('change', (e) => {
+                        if (e.target.files.length > 0) {
+                            this.handleFileUpload(e.target.files[0]);
+                        }
+                    });
+
+                    uploadArea.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        uploadArea.classList.add('dragover');
+                    });
+
+                    uploadArea.addEventListener('dragleave', () => {
+                        uploadArea.classList.remove('dragover');
+                    });
+
+                    uploadArea.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        uploadArea.classList.remove('dragover');
+                        if (e.dataTransfer.files.length > 0) {
+                            this.handleFileUpload(e.dataTransfer.files[0]);
+                        }
+                    });
+                }
+
+                if (useSampleDataBtn) {
+                    useSampleDataBtn.addEventListener('click', () => {
+                        this.loadSampleData();
+                    });
+                }
+            },
+
+            setupEventListeners: function() {
+                const estimatedGPInput = document.getElementById('estimatedGP');
+                if (estimatedGPInput) {
+                    estimatedGPInput.addEventListener('change', () => {
+                        this.calculateProjections();
+                    });
+                }
+
+                document.addEventListener('click', (event) => {
+                    if (!event.target.closest('.multi-select')) {
+                        const dropdowns = document.querySelectorAll('.multi-select-dropdown');
+                        dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
+                    }
+                });
+            },
+
+            handleFileUpload: function(file) {
+                const reader = new FileReader();
+                const fileName = file.name.toLowerCase();
+
+                reader.onload = (e) => {
+                    try {
+                        let data;
+                        if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
+                            data = this.parseExcel(e.target.result);
+                        } else {
+                            throw new Error('Please upload an Excel file (.xlsx or .xls)');
+                        }
+
+                        if (data && data.length > 0) {
+                            this.originalData = data;
+                            this.filteredData = [...data];
+                            
+                            // Create model data by filtering out excluded categories
+                            this.modelData = data.filter(item => {
+                                const hasModelData = item["Fixed Cost Estimate"] !== 0 || item["Marginal Cost per $1 GP"] !== 0;
+                                const isNotExcluded = !this.isExcludedFromProjections(item.Category);
+                                return hasModelData && isNotExcluded;
+                            }).map(item => ({
+                                "Category": item.Category,
+                                "Fixed Cost Estimate": item["Fixed Cost Estimate"],
+                                "Marginal Cost per $1 GP": item["Marginal Cost per $1 GP"]
+                            }));
+                            
+                            this.initializeDashboard();
+                            this.showUploadSuccess(file.name, data.length);
+                        } else {
+                            throw new Error('No valid data found in the file.');
+                        }
+                    } catch (error) {
+                        console.error('File upload error:', error);
+                        this.showUploadError(error.message);
+                    }
+                };
+
+                reader.onerror = () => {
+                    this.showUploadError('Error reading file. Please try again.');
+                };
+
+                reader.readAsArrayBuffer(file);
+            },
+
+            parseExcel: function(arrayBuffer) {
+                try {
+                    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    
+                    const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
+                        header: 1,
+                        defval: ''
+                    });
+
+                    if (jsonData.length < 2) {
+                        throw new Error('Excel file must contain at least a header row and one data row.');
+                    }
+
+                    const headers = jsonData[0];
+                    const dataRows = jsonData.slice(1);
+
+                    const processedData = dataRows.filter(row => {
+                        return row[0] && row[0].toString().trim() !== '';
+                    }).map(row => {
+                        const obj = {};
+                        headers.forEach((header, index) => {
+                            obj[header] = row[index] || '';
+                        });
+
+                        return {
+                            "Category": String(obj.Category || '').trim(),
+                            "Jun 2025": parseFloat(obj['Jun 2025']) || 0,
+                            "June vs Jan–May Avg ($)": parseFloat(obj['June vs Jan–May Avg ($)']) || 0,
+                            "Performance Diagnostic Summary": String(obj['Performance Diagnostic Assignment'] || '').trim(),
+                            "Margin Leverage Classification": obj['Margin Risk'] === true ? 'High Risk' : 'Normal Risk',
+                            "Ratio_Change_June_vs_MeanPrior": parseFloat(obj['Ratio_Change_June_vs_MeanPrior']) || 0,
+                            "Fixed Cost Estimate": parseFloat(obj['Fixed Cost Estimate']) || 0,
+                            "Marginal Cost per $1 GP": parseFloat(obj['Marginal Cost per $1 GP']) || 0,
+                            "ROI Efficiency": parseFloat(obj['ROI Efficiency']) || 0,
+                            "Efficiency Alert": String(obj['Efficiency Alert'] || '').trim(),
+                            "Best Performing (Cost Decline Rank)": obj['Best Performing (Cost Decline Rank)'] || "",
+                            "Expense vs Profit Growth Ratio": parseFloat(obj['Expense vs Profit Growth Ratio']) || 0,
+                            "Marketing Spend Efficiency": String(obj['Marketing Spend Efficiency'] || '').trim()
+                        };
+                    });
+
+                    console.log(`Successfully parsed ${processedData.length} records from Excel file`);
+                    return processedData;
+                } catch (error) {
+                    console.error('Excel parsing error:', error);
+                    throw new Error(`Excel parsing failed: ${error.message}`);
+                }
+            },
+
+            loadSampleData: function() {
+                this.originalData = [...this.sampleData];
+                this.filteredData = [...this.sampleData];
+                
+                // Create model data by filtering out excluded categories
+                this.modelData = this.originalData.filter(item => {
+                    const hasModelData = item["Fixed Cost Estimate"] !== 0 || item["Marginal Cost per $1 GP"] !== 0;
+                    const isNotExcluded = !this.isExcludedFromProjections(item.Category);
+                    return hasModelData && isNotExcluded;
+                }).map(item => ({
+                    "Category": item.Category,
+                    "Fixed Cost Estimate": item["Fixed Cost Estimate"],
+                    "Marginal Cost per $1 GP": item["Marginal Cost per $1 GP"]
+                }));
+                
+                this.initializeDashboard();
+                this.showUploadSuccess('Sample Data', this.sampleData.length);
+            },
+
+            loadPreloadedData: function() {
+                console.log('Loading pre-loaded data...');
+                
+                // Add cache-busting timestamp to prevent caching
+                const timestamp = new Date().getTime();
+                
+                // Try multiple sources for the Excel file with cache-busting
+                const sources = [
+                    `http://localhost:3001/api/data?t=${timestamp}`,
+                    `/api/data?t=${timestamp}`,
+                    `/P&L expense processed data through June 2025 v2.xlsx?t=${timestamp}`
+                ];
+                
+                const tryFetch = async (url) => {
+                    try {
+                        console.log('Trying to fetch from:', url);
+                        
+                        // Add cache-busting headers to prevent any caching
+                        const response = await fetch(url, {
+                            method: 'GET',
+                            headers: {
+                                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                                'Pragma': 'no-cache',
+                                'Expires': '0'
+                            }
+                        });
+                        
+                        console.log('Response status:', response.status);
+                        
+                        if (response.ok) {
+                            const arrayBuffer = await response.arrayBuffer();
+                            console.log('Successfully fetched file, parsing...');
+                            
+                            const data = this.parseExcel(arrayBuffer);
+                            if (data && data.length > 0) {
+                                this.originalData = data;
+                                this.filteredData = [...data];
+                                
+                                // Create model data by filtering out excluded categories
+                                this.modelData = data.filter(item => {
+                                    const hasModelData = item["Fixed Cost Estimate"] !== 0 || item["Marginal Cost per $1 GP"] !== 0;
+                                    const isNotExcluded = !this.isExcludedFromProjections(item.Category);
+                                    return hasModelData && isNotExcluded;
+                                }).map(item => ({
+                                    "Category": item.Category,
+                                    "Fixed Cost Estimate": item["Fixed Cost Estimate"],
+                                    "Marginal Cost per $1 GP": item["Marginal Cost per $1 GP"]
+                                }));
+                                
+                                this.initializeDashboard();
+                                this.showUploadSuccess('Pre-loaded Data (Fresh)', data.length);
+                                return true;
+                            }
+                        }
+                        return false;
+                    } catch (error) {
+                        console.error('Error fetching from', url, ':', error);
+                        return false;
+                    }
+                };
+                
+                // Try each source until one works
+                const attemptLoad = async () => {
+                    for (const source of sources) {
+                        const success = await tryFetch(source);
+                        if (success) {
+                            console.log('Successfully loaded fresh data from:', source);
+                            return;
+                        }
+                    }
+                    
+                    // If all sources fail, show error
+                    console.error('Failed to load data from all sources');
+                    this.showUploadError('Failed to load pre-loaded data. Please check your connection and try again.');
+                };
+                
+                attemptLoad();
+            },
+
+            initializeDashboard: function() {
+                const dashboardContent = document.getElementById('dashboardContent');
+                if (dashboardContent) {
+                    dashboardContent.classList.remove('hidden');
+                }
+                
+                setTimeout(() => {
+                    this.setupFilters();
+                    this.updateCharts();
+                    this.updateTable();
+                    
+                    setTimeout(() => {
+                        this.updateInsights();
+                        this.calculateProjections();
+                        this.isInitialized = true;
+                    }, 200);
+                }, 100);
+            },
+
+            setupFilters: function() {
+                // Filter out excluded categories from dropdown options
+                const categories = [...new Set(this.originalData
+                    .filter(item => !this.isExcludedFromProjections(item.Category))
+                    .map(item => item.Category))].sort();
+                const marginClassifications = [...new Set(this.originalData.map(item => item['Margin Leverage Classification']))].sort();
+
+                const categoryContainer = document.getElementById('categoryDropdown');
+                if (categoryContainer) {
+                    let categoryHTML = '';
+                    categories.forEach(cat => {
+                        const safeId = cat.replace(/[^a-zA-Z0-9]/g, '_');
+                        categoryHTML += `
+                            <div class="dropdown-item">
+                                <input type="checkbox" id="cat_${safeId}" value="${cat}" checked onchange="window.dashboard.applyFilters(); window.dashboard.updateDropdownText('categoryDropdown', 'categoryButtonText')">
+                                <label for="cat_${safeId}">${cat}</label>
+                            </div>
+                        `;
+                    });
+                    categoryContainer.innerHTML = categoryHTML;
+                }
+
+                const marginContainer = document.getElementById('marginDropdown');
+                if (marginContainer) {
+                    let marginHTML = '';
+                    marginClassifications.forEach(margin => {
+                        const safeId = margin.replace(/[^a-zA-Z0-9]/g, '_');
+                        marginHTML += `
+                            <div class="dropdown-item">
+                                <input type="checkbox" id="margin_${safeId}" value="${margin}" checked onchange="window.dashboard.applyFilters(); window.dashboard.updateDropdownText('marginDropdown', 'marginButtonText')">
+                                <label for="margin_${safeId}">${margin}</label>
+                            </div>
+                        `;
+                    });
+                    marginContainer.innerHTML = marginHTML;
+                }
+
+                this.updateDropdownText('categoryDropdown', 'categoryButtonText');
+                this.updateDropdownText('marginDropdown', 'marginButtonText');
+            },
+
+            toggleDropdown: function(dropdownId) {
+                const dropdown = document.getElementById(dropdownId);
+                if (dropdown) {
+                    dropdown.classList.toggle('show');
+                }
+            },
+
+            updateDropdownText: function(dropdownId, buttonTextId) {
+                const checkboxes = document.querySelectorAll(`#${dropdownId} input[type="checkbox"]:checked`);
+                const buttonText = document.getElementById(buttonTextId);
+                
+                if (buttonText) {
+                    if (checkboxes.length === 0) {
+                        buttonText.innerHTML = 'None selected';
+                    } else if (checkboxes.length === 1) {
+                        buttonText.innerHTML = checkboxes[0].nextElementSibling.textContent;
+                    } else {
+                        buttonText.innerHTML = `${checkboxes.length} selected <span class="selected-count">${checkboxes.length}</span>`;
+                    }
+                }
+            },
+
+            applyFilters: function() {
+                const selectedCategories = Array.from(document.querySelectorAll('#categoryDropdown input:checked')).map(cb => cb.value);
+                const selectedMarginClassifications = Array.from(document.querySelectorAll('#marginDropdown input:checked')).map(cb => cb.value);
+
+                this.filteredData = this.originalData.filter(item => 
+                    selectedCategories.includes(item.Category) && 
+                    selectedMarginClassifications.includes(item['Margin Leverage Classification']) &&
+                    !this.isExcludedFromProjections(item.Category)
+                );
+
+                this.updateCharts();
+                this.updateTable();
+                
+                if (this.isInitialized) {
+                    this.updateInsights();
+                }
+            },
+
+            updateCharts: function() {
+                if (this.filteredData.length === 0) return;
+                this.updatePerformanceChart();
+            },
+
+            updatePerformanceChart: function() {
+                // Filter out revenue/income categories from the performance chart
+                const chartData = this.filteredData.filter(item => 
+                    !this.isExcludedFromProjections(item.Category)
+                );
+                
+                const performanceCounts = {};
+                chartData.forEach(item => {
+                    const perf = item['Performance Diagnostic Summary'] || 'Unknown';
+                    performanceCounts[perf] = (performanceCounts[perf] || 0) + 1;
+                });
+
+                const ctx1 = document.getElementById('performanceChart');
+                if (!ctx1) return;
+
+                if (this.performanceChart) {
+                    this.performanceChart.destroy();
+                }
+
+                this.performanceChart = new Chart(ctx1.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(performanceCounts),
+                        datasets: [{
+                            label: 'Count',
+                            data: Object.values(performanceCounts),
+                            backgroundColor: ['#e53e3e', '#fd7900', '#48bb78', '#4299e1'],
+                            borderRadius: 8,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { 
+                                beginAtZero: true, 
+                                ticks: { 
+                                    stepSize: 1,
+                                    callback: function(value) {
+                                        return Math.round(value);
+                                    }
+                                } 
+                            },
+                            x: { ticks: { maxRotation: 45, minRotation: 45 } }
+                        }
+                    }
+                });
+            },
+
+            updateTable: function() {
+                const table = document.getElementById('dataTable');
+                if (!table) return;
+
+                const tbody = table.querySelector('tbody');
+                if (!tbody) return;
+
+                // Filter out excluded categories from the table display
+                const tableData = this.filteredData.filter(item => 
+                    !this.isExcludedFromProjections(item.Category)
+                );
+
+                if (tableData.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6">No data available</td></tr>';
+                    return;
+                }
+
+                const performancePriority = {
+                    '🟠 Cost Spike – Monitor': 1,
+                    'Cost Spike – Monitor': 1,
+                    '🔴 Margin Risk – Investigate': 2,
+                    'Margin Risk – Investigate': 2,
+                    '🟢 Stable or Fixed – Low Concern': 3,
+                    'Stable or Fixed – Low Concern': 3,
+                    '🗾 Neutral – Keep Watching': 4,
+                    'Neutral – Keep Watching': 4
+                };
+
+                const sortedData = [...tableData].sort((a, b) => {
+                    const aPriority = performancePriority[a['Performance Diagnostic Summary']] || 999;
+                    const bPriority = performancePriority[b['Performance Diagnostic Summary']] || 999;
+                    
+                    if (aPriority !== bPriority) {
+                        return aPriority - bPriority;
+                    }
+                    
+                    const aVariance = Math.abs(a['June vs Jan–May Avg ($)'] || 0);
+                    const bVariance = Math.abs(b['June vs Jan–May Avg ($)'] || 0);
+                    return bVariance - aVariance;
+                });
+
+                let tableHTML = '';
+                sortedData.forEach(item => {
+                    tableHTML += '<tr>';
+                    
+                    // Category
+                    tableHTML += `<td>${item.Category || 'N/A'}</td>`;
+                    
+                    // June Expenses
+                    const juneExpenses = item['Jun 2025'] || 0;
+                    tableHTML += `<td>${Math.round(juneExpenses).toLocaleString()}</td>`;
+                    
+                    // June vs. Jan-May Mean
+                    const varianceValue = item['June vs Jan–May Avg ($)'] || 0;
+                    tableHTML += `<td>${Math.round(varianceValue).toLocaleString()}</td>`;
+                    
+                    // Ratio Change (%)
+                    const ratioChangeValue = item['Ratio_Change_June_vs_MeanPrior'] || 0;
+                    tableHTML += `<td class="center-column">${Math.round(ratioChangeValue * 100)}%</td>`;
+                    
+                    // Performance Diagnostic
+                    tableHTML += `<td class="center-column">${item['Performance Diagnostic Summary'] || 'N/A'}</td>`;
+                    
+                    // Expense vs Profit Growth Ratio
+                    const expenseProfitRatio = item['Expense vs Profit Growth Ratio'] || 0;
+                    tableHTML += `<td>${expenseProfitRatio.toFixed(2)}</td>`;
+
+                    tableHTML += '</tr>';
+                });
+
+                tbody.innerHTML = tableHTML;
+            },
+
+            updateInsights: function() {
+                // For most insights, filter out excluded categories
+                const insightData = this.filteredData.filter(item => 
+                    !this.isExcludedFromProjections(item.Category)
+                );
+
+                // Expense Growth Outpaced Profit Growth
+                const outpacedCategories = insightData.filter(item => {
+                    const efficiencyAlert = String(item['Efficiency Alert'] || '').trim();
+                    return efficiencyAlert === 'Expense Outpaced Profit + Sensitive' || 
+                           efficiencyAlert === 'Expense Outpaced Profit' ||
+                           efficiencyAlert === 'Expense Outpaced Profit and Responsive';
+                });
+                
+                const expenseOutpacedElement = document.getElementById('expenseOutpacedText');
+                if (expenseOutpacedElement) {
+                    if (outpacedCategories.length > 0) {
+                        const categoryNames = outpacedCategories.map(item => item.Category);
+                        expenseOutpacedElement.textContent = `(${outpacedCategories.length}) ${categoryNames.join(', ')}`;
+                    } else {
+                        expenseOutpacedElement.textContent = '(0) No categories found';
+                    }
+                }
+
+                // Highest June variance
+                const topVariance = insightData
+                    .filter(item => {
+                        const variance = item['June vs Jan–May Avg ($)'];
+                        return variance !== undefined && variance !== null && variance !== 0;
+                    })
+                    .sort((a, b) => Math.abs(b['June vs Jan–May Avg ($)']) - Math.abs(a['June vs Jan–May Avg ($)']))[0];
+                
+                const topVarianceElement = document.getElementById('topVarianceText');
+                if (topVarianceElement) {
+                    if (topVariance) {
+                        const varianceAmount = Math.round(topVariance['June vs Jan–May Avg ($)']);
+                        const sign = varianceAmount >= 0 ? '+' : '-';
+                        const formattedVariance = `(${sign}${Math.abs(varianceAmount).toLocaleString()})`;
+                        topVarianceElement.textContent = `${topVariance.Category} ${formattedVariance}`;
+                    } else {
+                        topVarianceElement.textContent = 'No variance data available';
+                    }
+                }
+
+                // Top 3 Performing Expense Categories - USE ORIGINAL DATA (include Total categories for performance ranking)
+                const topPerformingCategories = this.filteredData
+                    .filter(item => {
+                        const rank = item['Best Performing (Cost Decline Rank)'];
+                        return rank === 1 || rank === 2 || rank === 3 || rank === "1" || rank === "2" || rank === "3";
+                    })
+                    .sort((a, b) => {
+                        const aRank = parseInt(a['Best Performing (Cost Decline Rank)']) || 999;
+                        const bRank = parseInt(b['Best Performing (Cost Decline Rank)']) || 999;
+                        return aRank - bRank;
+                    });
+                
+                const topMarginElement = document.getElementById('topMarginText');
+                if (topMarginElement) {
+                    if (topPerformingCategories.length > 0) {
+                        const formattedList = topPerformingCategories
+                            .map((item) => `${parseInt(item['Best Performing (Cost Decline Rank)'])}. ${item.Category}`)
+                            .join(', ');
+                        topMarginElement.textContent = formattedList;
+                    } else {
+                        topMarginElement.textContent = 'No performance ranking data available';
+                    }
+                }
+
+                // Marketing Spend Efficiency - include marketing total categories
+                const marketingEfficiencyCategories = this.filteredData.filter(item => {
+                    const efficiency = item['Marketing Spend Efficiency'];
+                    const hasEfficiencyData = efficiency && efficiency.toString().trim() !== '';
+                    
+                    // Include if it has efficiency data AND either:
+                    // 1. It's not excluded (regular expense categories), OR
+                    // 2. It's specifically a marketing total category
+                    const isMarketingTotal = item.Category.toLowerCase().includes('total 614000 marketing');
+                    const isNotExcluded = !this.isExcludedFromProjections(item.Category);
+                    
+                    return hasEfficiencyData && (isNotExcluded || isMarketingTotal);
+                });
+                
+                const roiElement = document.getElementById('marketingROIText');
+                if (roiElement) {
+                    if (marketingEfficiencyCategories.length > 0) {
+                        const formattedList = marketingEfficiencyCategories
+                            .map(item => `${item.Category} (${item['Marketing Spend Efficiency']})`)
+                            .join(', ');
+                        roiElement.textContent = formattedList;
+                    } else {
+                        roiElement.textContent = 'No marketing efficiency data available';
+                    }
+                }
+            },
+
+            calculateProjections: function() {
+                const estimatedGPInput = document.getElementById('estimatedGP');
+                const estimatedGP = estimatedGPInput ? parseFloat(estimatedGPInput.value) || 0 : 147081;
+                
+                console.log('=== PROJECTION CALCULATION DEBUG ===');
+                console.log('Model data count:', this.modelData.length);
+                console.log('Estimated GP:', estimatedGP);
+                
+                // Calculate projections for all model data
+                const projections = this.modelData.map(item => {
+                    const projectedExpense = item["Fixed Cost Estimate"] + (item["Marginal Cost per $1 GP"] * estimatedGP);
+                    return {
+                        ...item,
+                        "Projected Expense": Math.round(Math.max(0, projectedExpense))
+                    };
+                });
+
+                console.log('All projections:');
+                projections.forEach(p => {
+                    console.log(`  ${p.Category}: $${p["Projected Expense"].toLocaleString()}`);
+                });
+
+                // Calculate total (no additional filtering needed since modelData is already clean)
+                const totalProjectedExpenses = projections.reduce((sum, item) => sum + item["Projected Expense"], 0);
+                const projectedProfit = estimatedGP - totalProjectedExpenses;
+
+                console.log('Total Projected Expenses:', totalProjectedExpenses.toLocaleString());
+                console.log('Projected Profit:', projectedProfit.toLocaleString());
+
+                const totalExpensesElement = document.getElementById('totalProjectedExpenses');
+                const projectedProfitElement = document.getElementById('projectedProfit');
+                
+                if (totalExpensesElement) {
+                    totalExpensesElement.textContent = `$${totalProjectedExpenses.toLocaleString()}`;
+                }
+                
+                if (projectedProfitElement) {
+                    projectedProfitElement.textContent = `$${projectedProfit.toLocaleString()}`;
+                    projectedProfitElement.style.color = projectedProfit >= 0 ? '#48bb78' : '#f56565';
+                }
+
+                this.updateProjectionsTable(projections);
+                this.updateTopDriversTable(projections);
+            },
+
+            updateProjectionsTable: function(projections) {
+                const tbody = document.querySelector('#projectionTable tbody');
+                if (!tbody) return;
+                
+                let tableHTML = '';
+                projections.forEach(item => {
+                    tableHTML += '<tr>';
+                    tableHTML += `<td>${item.Category}</td>`;
+                    tableHTML += `<td>${Math.round(item["Fixed Cost Estimate"]).toLocaleString()}</td>`;
+                    tableHTML += `<td>${(item["Marginal Cost per $1 GP"] * 100).toFixed(2)}¢</td>`;
+                    tableHTML += `<td>${item["Projected Expense"].toLocaleString()}</td>`;
+                    tableHTML += '</tr>';
+                });
+
+                tbody.innerHTML = tableHTML;
+            },
+
+            updateTopDriversTable: function(projections) {
+                const tbody = document.querySelector('#topDriversTable tbody');
+                if (!tbody) return;
+                
+                const topDrivers = projections
+                    .filter(item => item["Marginal Cost per $1 GP"] > 0)
+                    .sort((a, b) => b["Marginal Cost per $1 GP"] - a["Marginal Cost per $1 GP"])
+                    .slice(0, 5);
+                
+                let tableHTML = '';
+                topDrivers.forEach(item => {
+                    tableHTML += '<tr>';
+                    tableHTML += `<td>${item.Category}</td>`;
+                    tableHTML += `<td>${(item["Marginal Cost per $1 GP"] * 100).toFixed(2)}¢</td>`;
+                    tableHTML += `<td>${item["Projected Expense"].toLocaleString()}</td>`;
+                    tableHTML += '</tr>';
+                });
+
+                tbody.innerHTML = tableHTML;
+            },
+
+            exportFilteredData: function() {
+                const exportData = this.filteredData.filter(item => 
+                    !this.isExcludedFromProjections(item.Category)
+                );
+                this.exportData(exportData, 'margin_diagnostic_data_filtered.csv');
+            },
+
+            exportAllData: function() {
+                const exportData = this.originalData.filter(item => 
+                    !this.isExcludedFromProjections(item.Category)
+                );
+                this.exportData(exportData, 'margin_diagnostic_data_complete.csv');
+            },
+
+            exportProjections: function() {
+                const estimatedGPInput = document.getElementById('estimatedGP');
+                const estimatedGP = estimatedGPInput ? parseFloat(estimatedGPInput.value) || 0 : 147081;
+                
+                const projections = this.modelData.map(item => ({
+                    "Category": item.Category,
+                    "Fixed Cost Estimate": Math.round(item["Fixed Cost Estimate"]),
+                    "Marginal Cost per $1 GP": item["Marginal Cost per $1 GP"],
+                    "Projected Expense": Math.round(item["Fixed Cost Estimate"] + (item["Marginal Cost per $1 GP"] * estimatedGP)),
+                    "Estimated Gross Profit": estimatedGP
+                }));
+
+                this.exportData(projections, `expense_projections_${estimatedGP.toLocaleString()}_gp.csv`);
+            },
+
+            exportData: function(dataToExport, fileName) {
+                if (dataToExport.length === 0) {
+                    alert('No data available to export');
+                    return;
+                }
+
+                const headers = Object.keys(dataToExport[0]);
+                const csvContent = [
+                    headers.join(','),
+                    ...dataToExport.map(row => 
+                        headers.map(header => {
+                            let value = row[header];
+                            if (typeof value === 'number') {
+                                value = Math.round(value);
+                            }
+                            if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+                                value = `"${value.replace(/"/g, '""')}"`;
+                            }
+                            return value;
+                        }).join(',')
+                    )
+                ].join('\n');
+
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', fileName);
+                
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                alert(`Data exported successfully as ${fileName}`);
+            },
+
+            showUploadSuccess: function(fileName, recordCount) {
+                const uploadArea = document.getElementById('uploadArea');
+                if (uploadArea) {
+                    uploadArea.innerHTML = `
+                        <div class="data-status">
+                            <h3>✅ Data Loaded Successfully!</h3>
+                            <p><strong>File:</strong> ${fileName}</p>
+                            <p><strong>Records loaded:</strong> ${recordCount}</p>
+                            <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: #48bb78; color: white; border: none; border-radius: 5px; cursor: pointer;">Upload Different File</button>
+                        </div>
+                    `;
+                }
+            },
+
+            showUploadError: function(errorMessage) {
+                const uploadArea = document.getElementById('uploadArea');
+                if (uploadArea) {
+                    uploadArea.innerHTML = `
+                        <div class="data-status error">
+                            <h3>❌ Upload Error</h3>
+                            <p>${errorMessage}</p>
+                            <button onclick="location.reload()" style="margin-top: 10px; padding: 8px 16px; background: #e53e3e; color: white; border: none; border-radius: 5px; cursor: pointer;">Try Again</button>
+                        </div>
+                    `;
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            window.dashboard.init();
+            // Automatically load pre-loaded data
+            window.dashboard.loadPreloadedData();
+        });
+    </script>
+</body>
+</html>
