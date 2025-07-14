@@ -921,19 +921,26 @@
                     const headers = jsonData[0];
                     const dataRows = jsonData.slice(1);
 
-                    // Robust header matching for Expense-Growth Alignment
+                    // Debug: print all headers
+                    console.log('Headers from Excel:', headers.map(h => JSON.stringify(h)));
                     const egaHeader = headers.find(
                         h => h && h.replace(/[ \s–—-]+/g, '-').trim().toLowerCase() === 'expense-growth alignment'
                     );
+                    console.log('Matched Expense-Growth Alignment header:', JSON.stringify(egaHeader));
 
                     const processedData = dataRows.filter(row => {
                         return row[0] && row[0].toString().trim() !== '';
-                    }).map(row => {
+                    }).map((row, idx) => {
                         const obj = {};
                         headers.forEach((header, index) => {
                             obj[header] = row[index] || '';
                         });
-
+                        // Debug: print value for each row
+                        console.log('Row', idx, 'value for Expense-Growth Alignment:', obj[egaHeader]);
+                        if (idx === 0) {
+                            console.log('First row keys:', Object.keys(obj));
+                            console.log('First row values:', obj);
+                        }
                         return {
                             "Category": String(obj.Category || '').trim(),
                             "May": parseFloat(obj['May']) || 0,
