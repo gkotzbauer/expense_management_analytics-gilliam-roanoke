@@ -544,7 +544,7 @@
                             <th class="center-column" style="width: 170px;">Most Recent Month vs. Avg. of Prior Months</th>
                             <th class="center-column">Ratio Change (%)</th>
                             <th class="center-column">Performance Diagnostic</th>
-                            <th class="center-column">Expense-Growth Alignment</th>
+                            <th class="center-column">Expense Growth Alignment</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -1276,7 +1276,7 @@
                     // Performance Diagnostic
                     tableHTML += `<td class="center-column">${item['Performance Diagnostic Summary'] || 'N/A'}</td>`;
                     
-                    // Expense-Growth Alignment (as text)
+                    // Expense Growth Alignment (as text)
                     const expenseGrowthAlignment = item['Expense Growth Alignment'] || '';
                     tableHTML += `<td class="center-column">${expenseGrowthAlignment}</td>`;
 
