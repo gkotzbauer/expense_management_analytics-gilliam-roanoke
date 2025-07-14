@@ -539,7 +539,7 @@
                 <table id="dataTable">
                     <thead>
                         <tr>
-                            <th>Category</th>
+                            <th style="width: 110px;">Category</th>
                             <th class="center-column" style="width: 140px;">Expenses for Most Recent Month</th>
                             <th class="center-column" style="width: 170px;">Most Recent Month vs. Avg. of Prior Months</th>
                             <th class="center-column">Ratio Change (%)</th>
@@ -942,7 +942,7 @@
                             "ROI Efficiency": parseFloat(obj['ROI Efficiency']) || 0,
                             "Efficiency Alert": String(obj['Efficiency Alert'] || '').trim(),
                             "Best Performing (Cost Decline Rank)": obj['Best Performing (Cost Decline Rank)'] || "",
-                            "Expense-Growth Alignment": String(obj['Expense-Growth Alignment'] || '').trim(),
+                            "Expense-Growth Alignment": typeof obj['Expense-Growth Alignment'] === 'undefined' ? '' : String(obj['Expense-Growth Alignment']).trim(),
                             "Marketing Spend Efficiency": String(obj['Marketing Spend Efficiency'] || '').trim()
                         };
                     });
