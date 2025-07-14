@@ -1023,6 +1023,16 @@
                         }
                         
                         const expenseGrowthAlignment = String(obj['Expense Growth Alignment'] || '').trim();
+                        
+                        // Debug for Render environment - check first few rows
+                        if (row === dataRows[0] || row === dataRows[1] || row === dataRows[2]) {
+                            console.log(`=== RENDER DEBUG ROW ${dataRows.indexOf(row)} ===`);
+                            console.log('Category:', obj.Category);
+                            console.log('Raw Expense Growth Alignment value:', obj['Expense Growth Alignment']);
+                            console.log('Processed value:', expenseGrowthAlignment);
+                            console.log('All keys in this row:', Object.keys(obj));
+                            console.log('=== END DEBUG ===');
+                        }
                         console.log(`Processing ${obj.Category}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
                         
                         return {
