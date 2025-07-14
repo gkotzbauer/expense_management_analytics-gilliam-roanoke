@@ -539,7 +539,7 @@
                 <table id="dataTable">
                     <thead>
                         <tr>
-                            <th style="width: 125px;">Category</th>
+                            <th style="width: 140px;">Category</th>
                             <th class="center-column" style="width: 140px;">Expenses for Most Recent Month</th>
                             <th class="center-column" style="width: 170px;">Most Recent Month vs. Avg. of Prior Months</th>
                             <th class="center-column">Ratio Change (%)</th>
@@ -906,13 +906,16 @@
             parseExcel: function(arrayBuffer) {
                 try {
                     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    console.log('Sheet names:', workbook.SheetNames);
                     const firstSheetName = workbook.SheetNames[0];
+                    console.log('Using sheet:', firstSheetName);
                     const worksheet = workbook.Sheets[firstSheetName];
                     
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
                         header: 1,
                         defval: ''
                     });
+                    console.log('First 3 rows of raw data:', jsonData.slice(0, 3));
 
                     if (jsonData.length < 2) {
                         throw new Error('Excel file must contain at least a header row and one data row.');
