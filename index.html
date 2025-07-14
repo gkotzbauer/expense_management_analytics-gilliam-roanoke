@@ -539,7 +539,7 @@
                 <table id="dataTable">
                     <thead>
                         <tr>
-                            <th style="width: 110px;">Category</th>
+                            <th style="width: 125px;">Category</th>
                             <th class="center-column" style="width: 140px;">Expenses for Most Recent Month</th>
                             <th class="center-column" style="width: 170px;">Most Recent Month vs. Avg. of Prior Months</th>
                             <th class="center-column">Ratio Change (%)</th>
@@ -1253,6 +1253,7 @@
 
                 let tableHTML = '';
                 sortedData.forEach(item => {
+                    console.log('Expense-Growth Alignment for', item.Category, ':', item['Expense-Growth Alignment']);
                     tableHTML += '<tr>';
                     
                     // Category
