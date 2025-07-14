@@ -917,12 +917,18 @@
                     });
                     console.log('First 3 rows of raw data:', jsonData.slice(0, 3));
 
-                    if (jsonData.length < 2) {
-                        throw new Error('Excel file must contain at least a header row and one data row.');
+                    // Auto-detect header row by searching for 'Expense-Growth Alignment'
+                    let headerRowIndex = 0;
+                    for (let i = 0; i < Math.min(jsonData.length, 10); i++) {
+                        const row = jsonData[i] || [];
+                        if (row.some(h => h && h.replace(/[ \s–—-]+/g, '-').trim().toLowerCase() === 'expense-growth alignment')) {
+                            headerRowIndex = i;
+                            break;
+                        }
                     }
-
-                    const headers = jsonData[0];
-                    const dataRows = jsonData.slice(1);
+                    console.log('Auto-detected header row index:', headerRowIndex);
+                    const headers = jsonData[headerRowIndex];
+                    const dataRows = jsonData.slice(headerRowIndex + 1);
 
                     // Debug: print all headers
                     console.log('Headers from Excel:', headers.map(h => JSON.stringify(h)));
