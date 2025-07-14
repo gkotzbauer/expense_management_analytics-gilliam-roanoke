@@ -1077,7 +1077,7 @@
                 
                 // Try multiple sources for the Excel file with cache-busting
                 const sources = [
-                    `/expense-analysis.xlsx?t=${timestamp}`
+                    `/public/expense-analysis.xlsx?t=${timestamp}&v=${Date.now()}`
                 ];
                 
                 const tryFetch = async (url) => {
@@ -1377,6 +1377,7 @@
                     // Expense Growth Alignment (as text)
                     const expenseGrowthAlignment = item['Expense Growth Alignment'] || '';
                     console.log(`Table row for ${item.Category}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
+                    console.log(`Full item for ${item.Category}:`, item);
                     tableHTML += `<td class="center-column">${expenseGrowthAlignment}</td>`;
 
                     tableHTML += '</tr>';
@@ -1657,6 +1658,7 @@
         };
 
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard loaded at:', new Date().toISOString());
             window.dashboard.init();
             // Automatically load pre-loaded data
             window.dashboard.loadPreloadedData();
