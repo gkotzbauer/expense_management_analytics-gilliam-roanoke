@@ -991,6 +991,7 @@
             },
 
             parseExcel: function(arrayBuffer) {
+                console.log('parseExcel called');
                 try {
                     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
                     const firstSheetName = workbook.SheetNames[0];
@@ -1008,7 +1009,7 @@
                     const headers = jsonData[0];
                     const dataRows = jsonData.slice(1);
 
-
+                    console.log('Headers from Excel:', headers);
 
                     const processedData = dataRows.filter(row => {
                         return row[0] && row[0].toString().trim() !== '';
@@ -1017,6 +1018,9 @@
                         headers.forEach((header, index) => {
                             obj[header] = row[index] || '';
                         });
+                        if (row === dataRows[0]) {
+                            console.log('First parsed object:', obj);
+                        }
                         
                         const expenseGrowthAlignment = String(obj['Expense Growth Alignment'] || '').trim();
                         console.log(`Processing ${obj.Category}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
@@ -1066,7 +1070,7 @@
             },
 
             loadPreloadedData: function() {
-                console.log('Loading pre-loaded data...');
+                console.log('loadPreloadedData called');
                 
                 // Add cache-busting timestamp to prevent caching
                 const timestamp = new Date().getTime();
@@ -1312,6 +1316,12 @@
                     item.Category.toLowerCase().trim() !== 'net ordinary income' &&
                     item.Category.toLowerCase().trim() !== 'gross profit'
                 );
+
+                // Debug: print keys of first row
+                if (tableData.length > 0) {
+                    console.log('First row keys in filteredData:', Object.keys(tableData[0]));
+                    console.log('First row in filteredData:', tableData[0]);
+                }
 
                 if (tableData.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6">No data available</td></tr>';
