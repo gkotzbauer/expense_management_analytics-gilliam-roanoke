@@ -541,7 +541,7 @@
                         <tr>
                             <th>Category</th>
                             <th>Expenses for Most Recent Month</th>
-                            <th>Anchor vs Prior Avg ($)</th>
+                            <th>Most Recent Month vs. Avg. of Prior Months</th>
                             <th class="center-column">Ratio Change (%)</th>
                             <th class="center-column">Performance Diagnostic</th>
                             <th>Expense vs Profit Growth Ratio</th>
@@ -1257,11 +1257,11 @@
                     // Category
                     tableHTML += `<td>${item.Category || 'N/A'}</td>`;
                     
-                    // June Expenses
-                    const juneExpenses = item['Jun 2025'] || 0;
-                    tableHTML += `<td>${Math.round(juneExpenses).toLocaleString()}</td>`;
+                    // Expenses for Most Recent Month (now from 'May')
+                    const mayExpenses = item['May'] || 0;
+                    tableHTML += `<td>${Math.round(mayExpenses).toLocaleString()}</td>`;
                     
-                    // Anchor vs Prior Avg ($)
+                    // Most Recent Month vs. Avg. of Prior Months
                     const anchorPriorValue = item['Anchor vs Prior Avg ($)'] || 0;
                     tableHTML += `<td>${Math.round(anchorPriorValue).toLocaleString()}</td>`;
                     
@@ -1285,7 +1285,9 @@
             updateInsights: function() {
                 // For most insights, filter out excluded categories
                 const insightData = this.filteredData.filter(item => 
-                    !this.isExcludedFromProjections(item.Category)
+                    !this.isExcludedFromProjections(item.Category) &&
+                    item.Category.toLowerCase().trim() !== 'net ordinary income' &&
+                    item.Category.toLowerCase().trim() !== 'gross profit'
                 );
 
                 // Expense Growth Outpaced Profit Growth
@@ -1306,11 +1308,13 @@
                     }
                 }
 
-                // Highest June variance
-                const topVariance = insightData
+                // Highest variance (exclude Net Ordinary Expense and Gross Profit)
+                const topVariance = this.filteredData
                     .filter(item => {
                         const variance = item['Anchor vs Prior Avg ($)'];
-                        return variance !== undefined && variance !== null && variance !== 0;
+                        const cat = (item.Category || '').toLowerCase().trim();
+                        return variance !== undefined && variance !== null && variance !== 0 &&
+                            cat !== 'net ordinary income' && cat !== 'gross profit' && cat !== 'net ordinary expense';
                     })
                     .sort((a, b) => Math.abs(b['Anchor vs Prior Avg ($)']) - Math.abs(a['Anchor vs Prior Avg ($)']))[0];
                 
@@ -1350,20 +1354,25 @@
                     }
                 }
 
-                // Marketing Spend Efficiency - include marketing total categories
+                // Marketing Spend Efficiency - always include Total Marketing & Advertising and Advertising & Marketing Fund
                 const marketingEfficiencyCategories = this.filteredData.filter(item => {
                     const efficiency = item['Marketing Spend Efficiency'];
                     const hasEfficiencyData = efficiency && efficiency.toString().trim() !== '';
-                    
+                    const cat = (item.Category || '').toLowerCase().trim();
+                    const isMarketingSpecial = cat === 'total marketing & advertising' || cat === 'advertising & marketing fund';
                     // Include if it has efficiency data AND either:
                     // 1. It's not excluded (regular expense categories), OR
                     // 2. It's specifically a marketing total category
-                    const isMarketingTotal = item.Category.toLowerCase().includes('total 614000 marketing');
                     const isNotExcluded = !this.isExcludedFromProjections(item.Category);
-                    
-                    return hasEfficiencyData && (isNotExcluded || isMarketingTotal);
+                    return hasEfficiencyData && (isNotExcluded || isMarketingSpecial);
                 });
-                
+                // Ensure both special marketing categories are always included if present
+                ['total marketing & advertising', 'advertising & marketing fund'].forEach(specialCat => {
+                    const found = this.originalData.find(item => (item.Category || '').toLowerCase().trim() === specialCat);
+                    if (found && found['Marketing Spend Efficiency'] && !marketingEfficiencyCategories.some(item => (item.Category || '').toLowerCase().trim() === specialCat)) {
+                        marketingEfficiencyCategories.push(found);
+                    }
+                });
                 const roiElement = document.getElementById('marketingROIText');
                 if (roiElement) {
                     if (marketingEfficiencyCategories.length > 0) {
