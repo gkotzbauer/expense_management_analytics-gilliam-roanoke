@@ -539,12 +539,12 @@
                 <table id="dataTable">
                     <thead>
                         <tr>
-                            <th>Category</th>
-                            <th>Expenses for Most Recent Month</th>
-                            <th>Most Recent Month vs. Avg. of Prior Months</th>
+                            <th class="center-column">Category</th>
+                            <th class="center-column" style="width: 140px;">Expenses for Most Recent Month</th>
+                            <th class="center-column" style="width: 170px;">Most Recent Month vs. Avg. of Prior Months</th>
                             <th class="center-column">Ratio Change (%)</th>
                             <th class="center-column">Performance Diagnostic</th>
-                            <th>Expense vs Profit Growth Ratio</th>
+                            <th class="center-column">Expense-Growth Alignment</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -942,7 +942,7 @@
                             "ROI Efficiency": parseFloat(obj['ROI Efficiency']) || 0,
                             "Efficiency Alert": String(obj['Efficiency Alert'] || '').trim(),
                             "Best Performing (Cost Decline Rank)": obj['Best Performing (Cost Decline Rank)'] || "",
-                            "Expense vs Profit Growth Ratio": parseFloat(obj['Expense vs Profit Growth Ratio']) || 0,
+                            "Expense-Growth Alignment": obj['Expense-Growth Alignment'] || '',
                             "Marketing Spend Efficiency": String(obj['Marketing Spend Efficiency'] || '').trim()
                         };
                     });
@@ -1256,15 +1256,15 @@
                     tableHTML += '<tr>';
                     
                     // Category
-                    tableHTML += `<td>${item.Category || 'N/A'}</td>`;
+                    tableHTML += `<td class="center-column">${item.Category || 'N/A'}</td>`;
                     
                     // Expenses for Most Recent Month (now from 'May')
                     const mayExpenses = item['May'] || 0;
-                    tableHTML += `<td>${Math.round(mayExpenses).toLocaleString()}</td>`;
+                    tableHTML += `<td class="center-column">${Math.round(mayExpenses).toLocaleString()}</td>`;
                     
                     // Most Recent Month vs. Avg. of Prior Months
                     const anchorPriorValue = item['Anchor vs Prior Avg ($)'] || 0;
-                    tableHTML += `<td>${Math.round(anchorPriorValue).toLocaleString()}</td>`;
+                    tableHTML += `<td class="center-column">${Math.round(anchorPriorValue).toLocaleString()}</td>`;
                     
                     // Ratio Change (%)
                     const ratioChangeValue = item['Ratio_Change_Anchor_vs_MeanPrior'] || 0;
@@ -1273,9 +1273,9 @@
                     // Performance Diagnostic
                     tableHTML += `<td class="center-column">${item['Performance Diagnostic Summary'] || 'N/A'}</td>`;
                     
-                    // Expense vs Profit Growth Ratio
-                    const expenseProfitRatio = item['Expense vs Profit Growth Ratio'] || 0;
-                    tableHTML += `<td>${expenseProfitRatio.toFixed(2)}</td>`;
+                    // Expense-Growth Alignment
+                    const expenseGrowthAlignment = item['Expense-Growth Alignment'] || 0;
+                    tableHTML += `<td class="center-column">${expenseGrowthAlignment}</td>`;
 
                     tableHTML += '</tr>';
                 });
