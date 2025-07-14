@@ -539,7 +539,7 @@
                 <table id="dataTable">
                     <thead>
                         <tr>
-                            <th class="center-column">Category</th>
+                            <th>Category</th>
                             <th class="center-column" style="width: 140px;">Expenses for Most Recent Month</th>
                             <th class="center-column" style="width: 170px;">Most Recent Month vs. Avg. of Prior Months</th>
                             <th class="center-column">Ratio Change (%)</th>
@@ -942,7 +942,7 @@
                             "ROI Efficiency": parseFloat(obj['ROI Efficiency']) || 0,
                             "Efficiency Alert": String(obj['Efficiency Alert'] || '').trim(),
                             "Best Performing (Cost Decline Rank)": obj['Best Performing (Cost Decline Rank)'] || "",
-                            "Expense-Growth Alignment": obj['Expense-Growth Alignment'] || '',
+                            "Expense-Growth Alignment": String(obj['Expense-Growth Alignment'] || '').trim(),
                             "Marketing Spend Efficiency": String(obj['Marketing Spend Efficiency'] || '').trim()
                         };
                     });
@@ -1256,7 +1256,7 @@
                     tableHTML += '<tr>';
                     
                     // Category
-                    tableHTML += `<td class="center-column">${item.Category || 'N/A'}</td>`;
+                    tableHTML += `<td>${item.Category || 'N/A'}</td>`;
                     
                     // Expenses for Most Recent Month (now from 'May')
                     const mayExpenses = item['May'] || 0;
@@ -1273,8 +1273,8 @@
                     // Performance Diagnostic
                     tableHTML += `<td class="center-column">${item['Performance Diagnostic Summary'] || 'N/A'}</td>`;
                     
-                    // Expense-Growth Alignment
-                    const expenseGrowthAlignment = item['Expense-Growth Alignment'] || 0;
+                    // Expense-Growth Alignment (as text)
+                    const expenseGrowthAlignment = item['Expense-Growth Alignment'] || '';
                     tableHTML += `<td class="center-column">${expenseGrowthAlignment}</td>`;
 
                     tableHTML += '</tr>';
