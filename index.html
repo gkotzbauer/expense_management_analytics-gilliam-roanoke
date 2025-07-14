@@ -661,7 +661,7 @@
                     "ROI Efficiency": 0.5,
                     "Efficiency Alert": "Expense Outpaced Profit",
                     "Best Performing (Cost Decline Rank)": "",
-                    "Expense-Growth Alignment": "",
+                    "Expense Growth Alignment": "",
                     "Marketing Spend Efficiency": ""
                 },
                 {
@@ -676,7 +676,7 @@
                     "ROI Efficiency": 0.8,
                     "Efficiency Alert": "Expense Outpaced Profit + Sensitive",
                     "Best Performing (Cost Decline Rank)": 1,
-                    "Expense-Growth Alignment": "",
+                    "Expense Growth Alignment": "",
                     "Marketing Spend Efficiency": ""
                 },
                 {
@@ -691,7 +691,7 @@
                     "ROI Efficiency": 0.19,
                     "Efficiency Alert": "Expense Outpaced Profit",
                     "Best Performing (Cost Decline Rank)": 2,
-                    "Expense-Growth Alignment": "",
+                    "Expense Growth Alignment": "",
                     "Marketing Spend Efficiency": "Inefficient"
                 },
                 {
@@ -706,7 +706,7 @@
                     "ROI Efficiency": 0.95,
                     "Efficiency Alert": "",
                     "Best Performing (Cost Decline Rank)": 3,
-                    "Expense-Growth Alignment": "",
+                    "Expense Growth Alignment": "",
                     "Marketing Spend Efficiency": ""
                 },
                 {
@@ -721,7 +721,7 @@
                     "ROI Efficiency": 0.75,
                     "Efficiency Alert": "",
                     "Best Performing (Cost Decline Rank)": "",
-                    "Expense-Growth Alignment": "",
+                    "Expense Growth Alignment": "",
                     "Marketing Spend Efficiency": ""
                 },
                 {
@@ -736,7 +736,7 @@
                     "ROI Efficiency": 1.0,
                     "Efficiency Alert": "",
                     "Best Performing (Cost Decline Rank)": "",
-                    "Expense-Growth Alignment": "",
+                    "Expense Growth Alignment": "",
                     "Marketing Spend Efficiency": ""
                 },
                 {
@@ -751,7 +751,7 @@
                     "ROI Efficiency": 1.0,
                     "Efficiency Alert": "",
                     "Best Performing (Cost Decline Rank)": "",
-                    "Expense-Growth Alignment": "",
+                    "Expense Growth Alignment": "",
                     "Marketing Spend Efficiency": ""
                 }
             ],
@@ -921,6 +921,8 @@
                     const headers = jsonData[0];
                     const dataRows = jsonData.slice(1);
 
+
+
                     const processedData = dataRows.filter(row => {
                         return row[0] && row[0].toString().trim() !== '';
                     }).map((row) => {
@@ -928,6 +930,9 @@
                         headers.forEach((header, index) => {
                             obj[header] = row[index] || '';
                         });
+                        
+                        const expenseGrowthAlignment = String(obj['Expense Growth Alignment'] || '').trim();
+                        
                         return {
                             "Category": String(obj.Category || '').trim(),
                             "May": parseFloat(obj['May']) || 0,
@@ -941,7 +946,7 @@
                             "ROI Efficiency": parseFloat(obj['ROI Efficiency']) || 0,
                             "Efficiency Alert": String(obj['Efficiency Alert'] || '').trim(),
                             "Best Performing (Cost Decline Rank)": obj['Best Performing (Cost Decline Rank)'] || "",
-                            "Expense-Growth Alignment": String(row[22] || '').trim(),
+                            "Expense Growth Alignment": expenseGrowthAlignment,
                             "Marketing Spend Efficiency": String(obj['Marketing Spend Efficiency'] || '').trim()
                         };
                     });
@@ -1272,7 +1277,7 @@
                     tableHTML += `<td class="center-column">${item['Performance Diagnostic Summary'] || 'N/A'}</td>`;
                     
                     // Expense-Growth Alignment (as text)
-                    const expenseGrowthAlignment = item['Expense-Growth Alignment'] || '';
+                    const expenseGrowthAlignment = item['Expense Growth Alignment'] || '';
                     tableHTML += `<td class="center-column">${expenseGrowthAlignment}</td>`;
 
                     tableHTML += '</tr>';
