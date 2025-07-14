@@ -1028,6 +1028,9 @@
                         });
                         if (row === dataRows[0]) {
                             console.log('First parsed object:', obj);
+                            Object.entries(obj).forEach(([k, v]) => {
+                                console.log(`Key: '${k}' | Value: '${v}' | Char codes:`, k.split('').map(c => c.charCodeAt(0)));
+                            });
                         }
                         
                         const expenseGrowthAlignment = String(
