@@ -1015,43 +1015,38 @@
                     const headers = jsonData[0];
                     const dataRows = jsonData.slice(1);
 
-                    // Debug: print headers with char codes and as JSON
-                    console.log('Headers from Excel (with char codes):', headers.map(h => h.split('').map(c => c.charCodeAt(0))));
-                    console.log('Headers as JSON:', headers.map(h => JSON.stringify(h)));
+                    // Normalize headers: trim, replace multiple spaces/dashes with a single space, and lowercase
+                    const normalizedHeaders = headers.map(h => h ? h.toString().replace(/[\s\-]+/g, ' ').trim() : '');
 
                     const processedData = dataRows.filter(row => {
                         return row[0] && row[0].toString().trim() !== '';
                     }).map((row) => {
                         const obj = {};
-                        headers.forEach((header, index) => {
+                        normalizedHeaders.forEach((header, index) => {
                             obj[header] = row[index] || '';
                         });
                         if (row === dataRows[0]) {
-                            console.log('First parsed object:', obj);
+                            console.log('First parsed object (normalized headers):', obj);
                             Object.entries(obj).forEach(([k, v]) => {
                                 console.log(`Key: '${k}' | Value: '${v}' | Char codes:`, k.split('').map(c => c.charCodeAt(0)));
                             });
                         }
-                        
                         const expenseGrowthAlignment = String(
                             obj['Expense Growth Alignment'] ||
-                            obj['Expense-Growth Alignment'] ||
                             ''
                         ).trim();
-                        
                         // Debug for Render environment - check first few rows
                         if (row === dataRows[0] || row === dataRows[1] || row === dataRows[2]) {
                             console.log(`=== RENDER DEBUG ROW ${dataRows.indexOf(row)} ===`);
-                            console.log('Category:', obj.Category);
+                            console.log('Category:', obj['Category']);
                             console.log('Raw Expense Growth Alignment value:', obj['Expense Growth Alignment']);
                             console.log('Processed value:', expenseGrowthAlignment);
                             console.log('All keys in this row:', Object.keys(obj));
                             console.log('=== END DEBUG ===');
                         }
-                        console.log(`Processing ${obj.Category}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
-                        
+                        console.log(`Processing ${obj['Category']}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
                         return {
-                            "Category": String(obj.Category || '').trim(),
+                            "Category": String(obj['Category'] || '').trim(),
                             "May": parseFloat(obj['May']) || 0,
                             "Jun 2025": parseFloat(obj['Jun 2025']) || 0,
                             "Anchor vs Prior Avg ($)": parseFloat(obj['Anchor vs Prior Avg ($)']) || 0,
