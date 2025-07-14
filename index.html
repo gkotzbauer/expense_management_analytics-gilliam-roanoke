@@ -906,16 +906,13 @@
             parseExcel: function(arrayBuffer) {
                 try {
                     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                    console.log('Sheet names:', workbook.SheetNames);
                     const firstSheetName = workbook.SheetNames[0];
-                    console.log('Using sheet:', firstSheetName);
                     const worksheet = workbook.Sheets[firstSheetName];
                     
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
                         header: 1,
                         defval: ''
                     });
-                    console.log('First 3 rows of raw data:', jsonData.slice(0, 3));
 
                     if (jsonData.length < 2) {
                         throw new Error('Excel file must contain at least a header row and one data row.');
@@ -924,26 +921,13 @@
                     const headers = jsonData[0];
                     const dataRows = jsonData.slice(1);
 
-                    // Debug: print all headers
-                    console.log('Headers from Excel:', headers.map(h => JSON.stringify(h)));
-                    const egaIndex = headers.findIndex(
-                        h => h && h.replace(/[ \s–—-]+/g, '-').trim().toLowerCase() === 'expense-growth alignment'
-                    );
-                    console.log('Matched Expense-Growth Alignment index:', egaIndex, 'header:', headers[egaIndex]);
-
                     const processedData = dataRows.filter(row => {
                         return row[0] && row[0].toString().trim() !== '';
-                    }).map((row, idx) => {
+                    }).map((row) => {
                         const obj = {};
                         headers.forEach((header, index) => {
                             obj[header] = row[index] || '';
                         });
-                        // Debug: print value for each row
-                        console.log('Row', idx, 'value for Expense-Growth Alignment:', egaIndex === -1 ? '' : row[egaIndex]);
-                        if (idx === 0) {
-                            console.log('First row keys:', Object.keys(obj));
-                            console.log('First row values:', obj);
-                        }
                         return {
                             "Category": String(obj.Category || '').trim(),
                             "May": parseFloat(obj['May']) || 0,
@@ -957,12 +941,11 @@
                             "ROI Efficiency": parseFloat(obj['ROI Efficiency']) || 0,
                             "Efficiency Alert": String(obj['Efficiency Alert'] || '').trim(),
                             "Best Performing (Cost Decline Rank)": obj['Best Performing (Cost Decline Rank)'] || "",
-                            "Expense-Growth Alignment": egaIndex === -1 ? '' : String(row[egaIndex] || '').trim(),
+                            "Expense-Growth Alignment": String(row[22] || '').trim(),
                             "Marketing Spend Efficiency": String(obj['Marketing Spend Efficiency'] || '').trim()
                         };
                     });
 
-                    console.log(`Successfully parsed ${processedData.length} records from Excel file`);
                     return processedData;
                 } catch (error) {
                     console.error('Excel parsing error:', error);
