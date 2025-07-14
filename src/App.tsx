@@ -10,12 +10,41 @@ function App() {
     const fetchExcel = async () => {
       try {
         console.log("Starting to fetch Excel data...")
-        const timestamp = new Date().getTime()
-        const response = await fetch(`/P&L Roanoke Processed for Publishing to Dashboard.xlsx?t=${timestamp}`)
-        console.log("Response status:", response.status, response.ok)
         
-        if (!response.ok) throw new Error("Failed to fetch Excel file")
+        // Try to find any Excel file in the public folder
+        const excelPatterns = [
+          "data.xlsx",
+          "expense_data.xlsx", 
+          "expenses.xlsx",
+          "financial_data.xlsx"
+        ]
         
+        let response = null
+        let fileName = ""
+        
+        // Try each pattern until we find a working Excel file
+        for (const pattern of excelPatterns) {
+          try {
+            console.log(`Trying pattern: ${pattern}`)
+            const timestamp = new Date().getTime()
+            response = await fetch(`/${pattern}?t=${timestamp}`)
+            console.log(`Response status for ${pattern}:`, response.status, response.ok)
+            
+            if (response.ok) {
+              fileName = pattern
+              break
+            }
+          } catch (err) {
+            console.log(`Failed to fetch ${pattern}:`, err)
+            continue
+          }
+        }
+        
+        if (!response || !response.ok) {
+          throw new Error("No Excel file found in public folder")
+        }
+        
+        console.log(`Successfully fetched file: ${fileName}`)
         console.log("Successfully fetched file, parsing...")
         const blob = await response.blob()
         const arrayBuffer = await blob.arrayBuffer()
