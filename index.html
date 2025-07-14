@@ -1077,6 +1077,7 @@
                 
                 // Try multiple sources for the Excel file with cache-busting
                 const sources = [
+                    `/expense-analysis.xlsx?t=${timestamp}&v=${Date.now()}`,
                     `/public/expense-analysis.xlsx?t=${timestamp}&v=${Date.now()}`
                 ];
                 
