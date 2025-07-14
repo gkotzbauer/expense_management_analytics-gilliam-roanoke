@@ -923,10 +923,10 @@
 
                     // Debug: print all headers
                     console.log('Headers from Excel:', headers.map(h => JSON.stringify(h)));
-                    const egaHeader = headers.find(
+                    const egaIndex = headers.findIndex(
                         h => h && h.replace(/[ \s–—-]+/g, '-').trim().toLowerCase() === 'expense-growth alignment'
                     );
-                    console.log('Matched Expense-Growth Alignment header:', JSON.stringify(egaHeader));
+                    console.log('Matched Expense-Growth Alignment index:', egaIndex, 'header:', headers[egaIndex]);
 
                     const processedData = dataRows.filter(row => {
                         return row[0] && row[0].toString().trim() !== '';
@@ -936,7 +936,7 @@
                             obj[header] = row[index] || '';
                         });
                         // Debug: print value for each row
-                        console.log('Row', idx, 'value for Expense-Growth Alignment:', obj[egaHeader]);
+                        console.log('Row', idx, 'value for Expense-Growth Alignment:', egaIndex === -1 ? '' : row[egaIndex]);
                         if (idx === 0) {
                             console.log('First row keys:', Object.keys(obj));
                             console.log('First row values:', obj);
@@ -954,7 +954,7 @@
                             "ROI Efficiency": parseFloat(obj['ROI Efficiency']) || 0,
                             "Efficiency Alert": String(obj['Efficiency Alert'] || '').trim(),
                             "Best Performing (Cost Decline Rank)": obj['Best Performing (Cost Decline Rank)'] || "",
-                            "Expense-Growth Alignment": typeof obj[egaHeader] === 'undefined' ? '' : String(obj[egaHeader]).trim(),
+                            "Expense-Growth Alignment": egaIndex === -1 ? '' : String(row[egaIndex] || '').trim(),
                             "Marketing Spend Efficiency": String(obj['Marketing Spend Efficiency'] || '').trim()
                         };
                     });
