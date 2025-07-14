@@ -1029,7 +1029,11 @@
                             console.log('First parsed object:', obj);
                         }
                         
-                        const expenseGrowthAlignment = String(obj['Expense Growth Alignment'] || '').trim();
+                        const expenseGrowthAlignment = String(
+                            obj['Expense Growth Alignment'] ||
+                            obj['Expense-Growth Alignment'] ||
+                            ''
+                        ).trim();
                         
                         // Debug for Render environment - check first few rows
                         if (row === dataRows[0] || row === dataRows[1] || row === dataRows[2]) {
