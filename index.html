@@ -992,15 +992,21 @@
 
             parseExcel: function(arrayBuffer) {
                 console.log('parseExcel called');
+                console.log('ArrayBuffer size:', arrayBuffer.byteLength);
                 try {
                     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    console.log('Workbook sheets:', workbook.SheetNames);
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
+                    console.log('Worksheet range:', worksheet['!ref']);
                     
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
                         header: 1,
                         defval: ''
                     });
+
+                    console.log('Raw JSON data length:', jsonData.length);
+                    console.log('First few rows of raw data:', jsonData.slice(0, 3));
 
                     if (jsonData.length < 2) {
                         throw new Error('Excel file must contain at least a header row and one data row.');
@@ -1010,6 +1016,7 @@
                     const dataRows = jsonData.slice(1);
 
                     console.log('Headers from Excel:', headers);
+                    console.log('Header count:', headers.length);
 
                     const processedData = dataRows.filter(row => {
                         return row[0] && row[0].toString().trim() !== '';
