@@ -15,5 +15,4 @@ services:
   - type: static
     name: expense-analytics-frontend-gilliam-roanoke
     plan: free
-    buildCommand: npm install && npm run build
-    staticPublishPath: ./dist
+    staticPublishPath: ./
