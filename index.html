@@ -1019,6 +1019,7 @@
                         });
                         
                         const expenseGrowthAlignment = String(obj['Expense Growth Alignment'] || '').trim();
+                        console.log(`Processing ${obj.Category}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
                         
                         return {
                             "Category": String(obj.Category || '').trim(),
@@ -1365,6 +1366,7 @@
                     
                     // Expense Growth Alignment (as text)
                     const expenseGrowthAlignment = item['Expense Growth Alignment'] || '';
+                    console.log(`Table row for ${item.Category}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
                     tableHTML += `<td class="center-column">${expenseGrowthAlignment}</td>`;
 
                     tableHTML += '</tr>';
