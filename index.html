@@ -1015,8 +1015,9 @@
                     const headers = jsonData[0];
                     const dataRows = jsonData.slice(1);
 
-                    console.log('Headers from Excel:', headers);
-                    console.log('Header count:', headers.length);
+                    // Debug: print headers with char codes and as JSON
+                    console.log('Headers from Excel (with char codes):', headers.map(h => h.split('').map(c => c.charCodeAt(0))));
+                    console.log('Headers as JSON:', headers.map(h => JSON.stringify(h)));
 
                     const processedData = dataRows.filter(row => {
                         return row[0] && row[0].toString().trim() !== '';
