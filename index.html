@@ -541,7 +541,7 @@
                         <tr>
                             <th>Category</th>
                             <th>Expenses for Most Recent Month</th>
-                            <th>Most Recent Month vs. Prior Month's Mean</th>
+                            <th>Anchor vs Prior Avg ($)</th>
                             <th class="center-column">Ratio Change (%)</th>
                             <th class="center-column">Performance Diagnostic</th>
                             <th>Expense vs Profit Growth Ratio</th>
@@ -932,10 +932,10 @@
                         return {
                             "Category": String(obj.Category || '').trim(),
                             "Jun 2025": parseFloat(obj['Jun 2025']) || 0,
-                            "June vs Jan–May Avg ($)": parseFloat(obj['June vs Jan–May Avg ($)']) || 0,
+                            "Anchor vs Prior Avg ($)": parseFloat(obj['Anchor vs Prior Avg ($)']) || 0,
                             "Performance Diagnostic Summary": String(obj['Performance Diagnostic Assignment'] || '').trim(),
                             "Margin Leverage Classification": obj['Margin Risk'] === true ? 'High Risk' : 'Normal Risk',
-                            "Ratio_Change_June_vs_MeanPrior": parseFloat(obj['Ratio_Change_June_vs_MeanPrior']) || 0,
+                            "Ratio_Change_Anchor_vs_MeanPrior": parseFloat(obj['Ratio_Change_Anchor_vs_MeanPrior']) || 0,
                             "Fixed Cost Estimate": parseFloat(obj['Fixed Cost Estimate']) || 0,
                             "Marginal Cost per $1 GP": parseFloat(obj['Marginal Cost per $1 GP']) || 0,
                             "ROI Efficiency": parseFloat(obj['ROI Efficiency']) || 0,
@@ -1216,7 +1216,9 @@
 
                 // Filter out excluded categories from the table display
                 const tableData = this.filteredData.filter(item => 
-                    !this.isExcludedFromProjections(item.Category)
+                    !this.isExcludedFromProjections(item.Category) &&
+                    item.Category.toLowerCase().trim() !== 'net ordinary income' &&
+                    item.Category.toLowerCase().trim() !== 'gross profit'
                 );
 
                 if (tableData.length === 0) {
@@ -1243,8 +1245,8 @@
                         return aPriority - bPriority;
                     }
                     
-                    const aVariance = Math.abs(a['June vs Jan–May Avg ($)'] || 0);
-                    const bVariance = Math.abs(b['June vs Jan–May Avg ($)'] || 0);
+                    const aVariance = Math.abs(a['Anchor vs Prior Avg ($)'] || 0);
+                    const bVariance = Math.abs(b['Anchor vs Prior Avg ($)'] || 0);
                     return bVariance - aVariance;
                 });
 
@@ -1259,12 +1261,12 @@
                     const juneExpenses = item['Jun 2025'] || 0;
                     tableHTML += `<td>${Math.round(juneExpenses).toLocaleString()}</td>`;
                     
-                    // June vs. Jan-May Mean
-                    const varianceValue = item['June vs Jan–May Avg ($)'] || 0;
-                    tableHTML += `<td>${Math.round(varianceValue).toLocaleString()}</td>`;
+                    // Anchor vs Prior Avg ($)
+                    const anchorPriorValue = item['Anchor vs Prior Avg ($)'] || 0;
+                    tableHTML += `<td>${Math.round(anchorPriorValue).toLocaleString()}</td>`;
                     
                     // Ratio Change (%)
-                    const ratioChangeValue = item['Ratio_Change_June_vs_MeanPrior'] || 0;
+                    const ratioChangeValue = item['Ratio_Change_Anchor_vs_MeanPrior'] || 0;
                     tableHTML += `<td class="center-column">${Math.round(ratioChangeValue * 100)}%</td>`;
                     
                     // Performance Diagnostic
@@ -1307,15 +1309,15 @@
                 // Highest June variance
                 const topVariance = insightData
                     .filter(item => {
-                        const variance = item['June vs Jan–May Avg ($)'];
+                        const variance = item['Anchor vs Prior Avg ($)'];
                         return variance !== undefined && variance !== null && variance !== 0;
                     })
-                    .sort((a, b) => Math.abs(b['June vs Jan–May Avg ($)']) - Math.abs(a['June vs Jan–May Avg ($)']))[0];
+                    .sort((a, b) => Math.abs(b['Anchor vs Prior Avg ($)']) - Math.abs(a['Anchor vs Prior Avg ($)']))[0];
                 
                 const topVarianceElement = document.getElementById('topVarianceText');
                 if (topVarianceElement) {
                     if (topVariance) {
-                        const varianceAmount = Math.round(topVariance['June vs Jan–May Avg ($)']);
+                        const varianceAmount = Math.round(topVariance['Anchor vs Prior Avg ($)']);
                         const sign = varianceAmount >= 0 ? '+' : '-';
                         const formattedVariance = `(${sign}${Math.abs(varianceAmount).toLocaleString()})`;
                         topVarianceElement.textContent = `${topVariance.Category} ${formattedVariance}`;
@@ -1379,12 +1381,11 @@
                 const estimatedGPInput = document.getElementById('estimatedGP');
                 const estimatedGP = estimatedGPInput ? parseFloat(estimatedGPInput.value) || 0 : 147081;
                 
-                console.log('=== PROJECTION CALCULATION DEBUG ===');
-                console.log('Model data count:', this.modelData.length);
-                console.log('Estimated GP:', estimatedGP);
-                
-                // Calculate projections for all model data
-                const projections = this.modelData.map(item => {
+                // Calculate projections for all model data, excluding Net Ordinary Income and Gross Profit
+                const projections = this.modelData.filter(item =>
+                    item.Category.toLowerCase().trim() !== 'net ordinary income' &&
+                    item.Category.toLowerCase().trim() !== 'gross profit'
+                ).map(item => {
                     const projectedExpense = item["Fixed Cost Estimate"] + (item["Marginal Cost per $1 GP"] * estimatedGP);
                     return {
                         ...item,
@@ -1392,17 +1393,8 @@
                     };
                 });
 
-                console.log('All projections:');
-                projections.forEach(p => {
-                    console.log(`  ${p.Category}: $${p["Projected Expense"].toLocaleString()}`);
-                });
-
-                // Calculate total (no additional filtering needed since modelData is already clean)
                 const totalProjectedExpenses = projections.reduce((sum, item) => sum + item["Projected Expense"], 0);
                 const projectedProfit = estimatedGP - totalProjectedExpenses;
-
-                console.log('Total Projected Expenses:', totalProjectedExpenses.toLocaleString());
-                console.log('Projected Profit:', projectedProfit.toLocaleString());
 
                 const totalExpensesElement = document.getElementById('totalProjectedExpenses');
                 const projectedProfitElement = document.getElementById('projectedProfit');
