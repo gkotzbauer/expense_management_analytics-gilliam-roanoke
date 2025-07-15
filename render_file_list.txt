@@ -1,0 +1,49 @@
+total 512
+-rw-r--r--@ 1 kotzbauer  staff     734 Jul 14 14:12 eslint.config.js
+-rw-r--r--@ 1 kotzbauer  staff   77752 Jul 14 16:33 index.html
+-rw-r--r--@ 1 kotzbauer  staff    1933 Jul 14 16:45 local_file_list.txt
+-rw-r--r--@ 1 kotzbauer  staff      63 Jul 14 16:45 local_xlsx_md5.txt
+-rw-r--r--@ 1 kotzbauer  staff  116589 Jul 14 14:12 package-lock.json
+-rw-r--r--@ 1 kotzbauer  staff     761 Jul 14 14:12 package.json
+drwxr-xr-x@ 5 kotzbauer  staff     160 Jul 14 16:34 public
+-rw-r--r--@ 1 kotzbauer  staff     801 Jul 14 07:20 README.md
+-rw-r--r--@ 1 kotzbauer  staff       0 Jul 14 16:57 render_file_list.txt
+-rw-r--r--@ 1 kotzbauer  staff      63 Jul 14 16:57 render_xlsx_md5.txt
+-rw-r--r--@ 1 kotzbauer  staff      80 Jul 14 16:57 render_xlsx_size.txt
+-rw-r--r--@ 1 kotzbauer  staff     442 Jul 14 14:12 render.yaml
+drwxr-xr-x@ 6 kotzbauer  staff     192 Jul 14 07:20 server
+drwxr-xr-x@ 8 kotzbauer  staff     256 Jul 14 14:12 src
+-rw-r--r--@ 1 kotzbauer  staff     552 Jul 14 14:12 tsconfig.app.json
+-rw-r--r--@ 1 kotzbauer  staff     119 Jul 14 14:12 tsconfig.json
+-rw-r--r--@ 1 kotzbauer  staff     479 Jul 14 14:12 tsconfig.node.json
+-rw-r--r--@ 1 kotzbauer  staff     396 Jul 14 14:12 vite.config.ts
+-rw-r--r--@ 1 kotzbauer  staff   15359 Jul 14 16:57 xlsx_head_hex.txt
+
+./public:
+total 56
+-rw-r--r--@ 1 kotzbauer  staff  23553 Jul 14 16:33 expense-analysis.xlsx
+-rw-r--r--@ 1 kotzbauer  staff   1497 Jul 14 07:20 vite.svg
+
+./server:
+total 104
+drwxr-xr-x@ 4 kotzbauer  staff    128 Jul 14 16:33 data
+-rw-r--r--@ 1 kotzbauer  staff  43203 Jul 14 07:20 package-lock.json
+-rw-r--r--@ 1 kotzbauer  staff    361 Jul 14 07:20 package.json
+-rw-r--r--@ 1 kotzbauer  staff   2310 Jul 14 07:20 server.js
+
+./server/data:
+total 56
+-rw-r--r--@ 1 kotzbauer  staff  25243 Jul 14 16:33 P&L expense processed data through June 2025 v2.xlsx
+
+./src:
+total 40
+-rw-r--r--@ 1 kotzbauer  staff   606 Jul 14 14:12 App.css
+-rw-r--r--@ 1 kotzbauer  staff  1822 Jul 14 14:12 App.tsx
+drwxr-xr-x@ 3 kotzbauer  staff    96 Jul 14 14:12 assets
+-rw-r--r--@ 1 kotzbauer  staff  1161 Jul 14 14:12 index.css
+-rw-r--r--@ 1 kotzbauer  staff   230 Jul 14 14:12 main.tsx
+-rw-r--r--@ 1 kotzbauer  staff    38 Jul 14 14:12 vite-env.d.ts
+
+./src/assets:
+total 16
+-rw-r--r--@ 1 kotzbauer  staff  4126 Jul 14 14:12 react.svg

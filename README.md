@@ -1,21 +1,26 @@
-# React + TypeScript + Vite
+# Expense Management Analytics Dashboard - High Point
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive margin diagnostic performance dashboard for High Point, providing insights into expense management and profitability optimization.
 
-While this project uses React, Vite supports many popular JS frameworks. [See all the supported frameworks](https://vitejs.dev/guide/#scaffolding-your-first-vite-project).
+## Features
 
-## Deploy Your Own
+- Interactive expense analysis dashboard
+- Performance diagnostic distribution charts
+- Expense projection based on gross profit forecasts
+- Export functionality for filtered and complete data
+- Real-time data filtering and insights
 
-Deploy your own Vite project with Vercel.
+## Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/framework-boilerplates/vite-react&template=vite-react)
+This project is deployed on Render with automatic deployments from the main branch.
 
-_Live Example: https://vite-react-example.vercel.app_
+## Local Development
 
-### Deploying From Your Terminal
+To run locally:
+1. Clone the repository
+2. Open `index.html` in a web browser
+3. Or serve with a local server: `python3 -m http.server 8001`
 
-You can deploy your new Vite project with a single command from your terminal using [Vercel CLI](https://vercel.com/download):
+## Data Source
 
-```shell
-$ vercel
-```
+The dashboard loads data from `public/expense-analysis.xlsx` which contains the expense analysis data for High Point.

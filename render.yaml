@@ -1,7 +1,7 @@
 services:
   # Backend API service
   - type: web
-    name: expense-analytics-backend-gilliam-roanoke
+    name: expense-analytics-backend-high-point
     env: node
     plan: free
     buildCommand: cd server && npm install
@@ -13,6 +13,6 @@ services:
 
   # Frontend static site
   - type: static
-    name: expense-analytics-frontend-gilliam-roanoke
+    name: expense-analytics-frontend-high-point
     plan: free
     staticPublishPath: ./
