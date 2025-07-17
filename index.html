@@ -1055,6 +1055,16 @@
                             console.log('=== END DEBUG ===');
                         }
                         console.log(`Processing ${obj['Category']}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
+                        const elasticityHeader = normalizedHeaders.find(
+                          h => h.replace(/\s+/g, '').toLowerCase() === 'elasticityclassification'
+                        );
+                        let elasticityValue = '';
+                        if (elasticityHeader) {
+                          elasticityValue = String(obj[elasticityHeader] || '').trim();
+                        }
+                        // Store both the raw and normalized value
+                        obj['Elasticity Classification'] = elasticityValue;
+                        obj['Elasticity Classification Normalized'] = elasticityValue.replace(/\s+/g, '').toLowerCase();
                         return {
                             "Category": String(obj['Category'] || '').trim(),
                             "May": parseFloat(obj['May']) || 0,
