@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Margin Diagnostic Performance Dashboard</title>
+    <title>High Point Margin Performance Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -448,7 +448,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📊 Margin Diagnostic Performance Dashboard</h1>
+            <h1>📊 High Point Margin Performance Dashboard</h1>
             <p>Comprehensive margin insights to drive performance optimization and profitability management</p>
             <button onclick="window.dashboard.loadPreloadedData()" style="margin-top: 15px; padding: 10px 20px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: transform 0.2s ease;">
                 🔄 Refresh Data
@@ -485,15 +485,19 @@
                 <h2>🎯 Key Insights</h2>
                 <div class="insight-item" id="expenseOutpacedInsight">
                     <span style="font-size: 1.2rem;">⚠️ </span>
-                    <strong>Expense Growth Outpaced Profit Growth:</strong> <span id="expenseOutpacedText">Loading...</span>
+                    <strong>Expenses Grew Faster Than Profit:</strong> <span id="expenseOutpacedText">Loading...</span>
+                </div>
+                <div class="insight-item" id="expenseGrewDespiteDeclineInsight">
+                    <span style="font-size: 1.2rem;">⚠️ </span>
+                    <strong>Expenses Grew Even Though Profit Declined:</strong> <span id="expenseGrewDespiteDeclineText">Loading...</span>
                 </div>
                 <div class="insight-item" id="topVarianceInsight">
                     <span style="font-size: 1.2rem;">📈 </span>
-                    <strong>Highest June variance:</strong> <span id="topVarianceText">Loading...</span>
+                    <strong>Expense in Most Recent Month with Highest Variance:</strong> <span id="topVarianceText">Loading...</span>
                 </div>
                 <div class="insight-item" id="marginInsight">
                     <span style="font-size: 1.2rem;">🏆 </span>
-                    <strong>Top 3 Performing Expense Categories (controlled cost relative to change in revenue):</strong> <span id="topMarginText">Loading...</span>
+                    <strong>Top Performing Expense Categories with Controlled Cost (relative to change in revenue):</strong> <span id="topMarginText">Loading...</span>
                 </div>
                 <div class="insight-item" id="marketingROIInsight">
                     <span style="font-size: 1.2rem;">💰 </span>
@@ -512,15 +516,15 @@
             </div>
 
             <div class="chart-container">
-                <h2>📊 Performance Diagnostic Distribution</h2>
+                <h2>📊 Margin Risk Assessment</h2>
                 <canvas id="performanceChart" width="400" height="300"></canvas>
                 <div style="margin-top: 20px; font-size: 0.9rem; color: #718096;">
-                    <h4 style="color: #2d3748; margin-bottom: 10px;"><strong>Performance Diagnostic Assignment</strong></h4>
+                    <h4 style="color: #2d3748; margin-bottom: 10px;"><strong>Margin Risk Assessment Definitions</strong></h4>
                     <ul style="padding-left: 20px; line-height: 1.6;">
-                        <li><strong>Below Threshold:</strong> Small or one-off expenses whose six-month average is under $500—too minor to move the needle.</li>
-                        <li><strong>Cost Spike – Monitor:</strong> Expenses that jump by more than $1,000 <strong>and</strong> over 10% versus their prior-period average—worth watching for emerging cost issues.</li>
-                        <li><strong>Margin Risk – Investigate:</strong> Expenses are rising faster than profit (and exceed $1,000 in the most recent month)—signaling a real threat to margins that warrants immediate review.</li>
-                        <li><strong>Stable or Fixed – Low Concern:</strong> Regular expenses (average ≥$500) that barely change with profit (≤10% elasticity)—predictable costs with minimal margin impact.</li>
+                        <li><strong>Margin Improvement:</strong> Expense reductions or better expense control relative to profit—expenses are declining, or increasing more slowly than profit, driving improved margins.</li>
+                        <li><strong>Margin Risk:</strong> Expenses are rising faster than profit, or are increasing while profit is flat or declining. This expense appears to be threat to margins that warrants immediate investigation and action.</li>
+                        <li><strong>Below Threshold:</strong> Small or one-off expenses with a six-month average under $500. These are too minor to impact margin management or warrant regular review.</li>
+                        <li><strong>Neutral:</strong> Expenses and profit are changing at similar rates, or neither cost nor profit are moving in a way that indicates significant risk or improvement. No immediate concern - keep under review.</li>
                     </ul>
                 </div>
             </div>
@@ -539,43 +543,45 @@
                 <table id="dataTable">
                     <thead>
                         <tr>
-                            <th>Category</th>
-                            <th>June Expenses</th>
-                            <th>June vs. Jan-May Mean</th>
-                            <th class="center-column">Ratio Change (%)</th>
-                            <th class="center-column">Performance Diagnostic</th>
-                            <th>Expense vs Profit Growth Ratio</th>
+                            <th style="width: 140px;">Category</th>
+                            <th class="center-column" style="width: 140px;">Expenses for Most Recent Month</th>
+                            <th class="center-column" style="width: 170px;">Most Recent Month vs. Avg. of Prior Months</th>
+                            <th class="center-column">Margin Risk Assessment</th>
+                            <th class="center-column">Expense Growth Alignment</th>
+                            <th class="center-column">Suggested Action</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
                 </table>
                 <div style="margin-top: 20px; font-size: 0.9rem; color: #718096;">
-                    <h4 style="color: #2d3748; margin-bottom: 10px;"><strong>Performance Diagnostic Definitions</strong></h4>
+                    <h4 style="color: #2d3748; margin-bottom: 10px;"><strong>Margin Risk Assessment Definitions</strong></h4>
                     <ul style="padding-left: 20px; line-height: 1.6;">
-                        <li><strong>"Margin Risk – Investigate":</strong> Expense category showing significant increase requiring immediate management attention</li>
-                        <li><strong>"Cost Spike – Monitor":</strong> Expense category with notable patterns that should be closely monitored</li>
-                        <li><strong>"Stable or Fixed – Low Concern":</strong> Expense category maintaining consistent, predictable cost patterns</li>
-                        <li><strong>"Neutral – Keep Watching":</strong> Expense category with moderate changes requiring ongoing observation</li>
+                        <li><strong>Margin Improvement:</strong> Expense reductions or better expense control relative to profit—expenses are declining, or increasing more slowly than profit, driving improved margins.</li>
+                        <li><strong>Margin Risk:</strong> Expenses are rising faster than profit, or are increasing while profit is flat or declining. This expense appears to be threat to margins that warrants immediate investigation and action.</li>
+                        <li><strong>Below Threshold:</strong> Small or one-off expenses with a six-month average under $500. These are too minor to impact margin management or warrant regular review.</li>
+                        <li><strong>Neutral:</strong> Expenses and profit are changing at similar rates, or neither cost nor profit are moving in a way that indicates significant risk or improvement. No immediate concern - keep under review.</li>
                     </ul>
                     
                     <h4 style="color: #2d3748; margin-bottom: 10px; margin-top: 20px;"><strong>June vs. Jan-May Mean</strong></h4>
                     <p style="padding-left: 20px; line-height: 1.6;">The dollar‐amount difference between June's expense and the average expense over January–May.</p>
                     
-                    <h4 style="color: #2d3748; margin-bottom: 10px; margin-top: 20px;"><strong>Expense vs Profit Growth Ratio</strong></h4>
+                    <h4 style="color: #2d3748; margin-bottom: 10px; margin-top: 20px;"><strong>Suggested Action</strong></h4>
                     <ul style="padding-left: 20px; line-height: 1.6;">
-                        <li><strong>&gt;1 ⇒</strong> Expense grew faster than profit</li>
-                        <li><strong>&lt;1 ⇒</strong> Expense grew slower than profit</li>
-                        <li><strong>=1 ⇒</strong> Matched growth</li>
+                        <li><strong>Investigate – Potential Risk:</strong> Expense is rising faster than profit, or profit is flat/declining while expense rises; review required.</li>
+                        <li><strong>Efficient Scaling:</strong> Expense and profit are rising (or falling) at nearly the same rate; cost structure is scaling well—no action needed.</li>
+                        <li><strong>Productivity Gain:</strong> Profit has increased while expense stayed flat; strong result—consider sustaining or investing further.</li>
+                        <li><strong>Strong Cost Control:</strong> Expense has declined (or remained flat) while profit is stable or rising; excellent cost management.</li>
+                        <li><strong>Review Volatility:</strong> Expenses and profit are not moving in a consistent or expected pattern; review for anomalies or instability.</li>
+                        <li><strong>Stable – No Action:</strong> Both profit and expense are declining together; status quo—no immediate action needed.</li>
+                        <li><strong>No Comparison:</strong> Not enough prior data to evaluate change; no action possible.</li>
+                        <li><strong>Below Threshold:</strong> Expense is minor (average < $500a one-time expense.</li>
                     </ul>
-                    
-                    <h4 style="color: #2d3748; margin-bottom: 10px; margin-top: 20px;"><strong>Ratio Change (%)</strong></h4>
-                    <p style="padding-left: 20px; line-height: 1.6;">Relative change from the mean of prior months vs. recent month (e.g. 0.2 ⇒ 20% increase)</p>
                 </div>
             </div>
 
             <div class="projection-container">
                 <div class="projection-header">
-                    <h2>🔮 Expense Projection Based on Gross Profit Forecast</h2>
+                    <h2>�� Expense Projection Based on Gross Profit Forecast</h2>
                     <p>Enter an estimated gross profit to see projected expenses for each category</p>
                     <p style="font-size: 0.9rem; color: #718096; margin-top: 10px;">
                         <strong>Formula:</strong> Projected Expense = Fixed Cost Estimate + (Marginal Cost per $1 GP × Estimated Gross Profit)
@@ -650,109 +656,196 @@
 
             sampleData: [
                 {
-                    "Category": "612100 Medical Billing",
-                    "Jun 2025": 8616,
-                    "June vs Jan–May Avg ($)": 2441,
-                    "Performance Diagnostic Summary": "🔴 Margin Risk – Investigate",
-                    "Margin Leverage Classification": "High Risk",
-                    "Ratio_Change_June_vs_MeanPrior": 0.395,
-                    "Fixed Cost Estimate": 6970.70,
-                    "Marginal Cost per $1 GP": 0,
-                    "ROI Efficiency": 0.5,
-                    "Efficiency Alert": "Expense Outpaced Profit",
+                    "Category": "Other",
+                    "January": 1163.8,
+                    "February": 0.0,
+                    "March": 0.0,
+                    "April": -1125.0,
+                    "May": 3094.46,
+                    "Nonzero Month Count": 3,
+                    "One Time Expense": false,
+                    "Marginal Cost per $1 GP": 0.0,
+                    "Fixed Cost Estimate": 626.652,
+                    "R² Linear": 0.4481,
+                    "Elasticity (Log-Log)": 0,
+                    "Anchor Month Deviates from Trend ($)": 1053.841854364529,
+                    "Model Status": "Clamped",
+                    "Estimated Anchor Month Expense": 626.652,
+                    "Reconciled Anchor Month Expense": 379.5974184259961,
+                    "Estimated Future Expense": 626.652,
+                    "Mean Prior Months Expense": 9.699999999999989,
+                    "Mean All Months Expense": 626.652,
+                    "Anchor vs Prior Avg ($)": 3084.76,
+                    "Ratio_Change_Anchor_vs_MeanPrior": 318.0164948453612,
+                    "Expense vs Profit Growth Ratio": -125.7704011981041,
+                    "Expense Growth Alignment": "Costs Declined Despite Profit Growth",
                     "Best Performing (Cost Decline Rank)": "",
-                    "Expense vs Profit Growth Ratio": 1.25,
-                    "Marketing Spend Efficiency": ""
+                    "Efficiency Alert": "Below Threshold",
+                    "Elasticity Classification": "Below Threshold",
+                    "Margin Risk Assessment": "Below Threshold",
+                    "Performance Diagnostic Assignment": "Margin Risk – Investigate",
+                    "Marketing Spend Efficiency": "",
+                    "Ranking Priority": 1
                 },
                 {
-                    "Category": "613500 Employee Health",
-                    "Jun 2025": 1772,
-                    "June vs Jan–May Avg ($)": 526,
-                    "Performance Diagnostic Summary": "🔴 Margin Risk – Investigate",
-                    "Margin Leverage Classification": "High Risk",
-                    "Ratio_Change_June_vs_MeanPrior": 0.422,
-                    "Fixed Cost Estimate": 1460.39,
-                    "Marginal Cost per $1 GP": 0,
-                    "ROI Efficiency": 0.8,
-                    "Efficiency Alert": "Expense Outpaced Profit + Sensitive",
-                    "Best Performing (Cost Decline Rank)": 1,
-                    "Expense vs Profit Growth Ratio": 0.85,
-                    "Marketing Spend Efficiency": ""
-                },
-                {
-                    "Category": "614200 Internet & Social media",
-                    "Jun 2025": 8136,
-                    "June vs Jan–May Avg ($)": 2789,
-                    "Performance Diagnostic Summary": "🟠 Cost Spike – Monitor",
-                    "Margin Leverage Classification": "Normal Risk",
-                    "Ratio_Change_June_vs_MeanPrior": 0.522,
-                    "Fixed Cost Estimate": 6236.58,
-                    "Marginal Cost per $1 GP": 0,
-                    "ROI Efficiency": 0.19,
-                    "Efficiency Alert": "Expense Outpaced Profit",
-                    "Best Performing (Cost Decline Rank)": 2,
-                    "Expense vs Profit Growth Ratio": 1.42,
-                    "Marketing Spend Efficiency": "Inefficient"
-                },
-                {
-                    "Category": "600200 Salaries & Wages - X-Ray",
-                    "Jun 2025": 12230,
-                    "June vs Jan–May Avg ($)": 576,
-                    "Performance Diagnostic Summary": "🟢 Stable or Fixed – Low Concern",
-                    "Margin Leverage Classification": "Normal Risk",
-                    "Ratio_Change_June_vs_MeanPrior": 0.049,
-                    "Fixed Cost Estimate": 23651.26,
-                    "Marginal Cost per $1 GP": -0.0874,
-                    "ROI Efficiency": 0.95,
-                    "Efficiency Alert": "",
-                    "Best Performing (Cost Decline Rank)": 3,
-                    "Expense vs Profit Growth Ratio": 0.78,
-                    "Marketing Spend Efficiency": ""
-                },
-                {
-                    "Category": "600600 Salaries & Wages - Admin",
-                    "Jun 2025": 7240,
-                    "June vs Jan–May Avg ($)": 361,
-                    "Performance Diagnostic Summary": "🟢 Stable or Fixed – Low Concern",
-                    "Margin Leverage Classification": "Normal Risk",
-                    "Ratio_Change_June_vs_MeanPrior": 0.052,
-                    "Fixed Cost Estimate": 10114.30,
-                    "Marginal Cost per $1 GP": -0.0250,
-                    "ROI Efficiency": 0.75,
-                    "Efficiency Alert": "",
+                    "Category": "Total Taxes",
+                    "January": 1163.8,
+                    "February": 0.0,
+                    "March": 0.0,
+                    "April": -1125.0,
+                    "May": 3094.46,
+                    "Nonzero Month Count": 3,
+                    "One Time Expense": false,
+                    "Marginal Cost per $1 GP": 0.0,
+                    "Fixed Cost Estimate": 626.652,
+                    "R² Linear": 0.4481,
+                    "Elasticity (Log-Log)": 0,
+                    "Anchor Month Deviates from Trend ($)": 1053.841854364529,
+                    "Model Status": "Clamped",
+                    "Estimated Anchor Month Expense": 626.652,
+                    "Reconciled Anchor Month Expense": 379.5974184259961,
+                    "Estimated Future Expense": 626.652,
+                    "Mean Prior Months Expense": 9.699999999999989,
+                    "Mean All Months Expense": 626.652,
+                    "Anchor vs Prior Avg ($)": 3084.76,
+                    "Ratio_Change_Anchor_vs_MeanPrior": 318.0164948453612,
+                    "Expense vs Profit Growth Ratio": -125.7704011981041,
+                    "Expense Growth Alignment": "Costs Declined Despite Profit Growth",
                     "Best Performing (Cost Decline Rank)": "",
-                    "Expense vs Profit Growth Ratio": 0.92,
-                    "Marketing Spend Efficiency": ""
+                    "Efficiency Alert": "Below Threshold",
+                    "Elasticity Classification": "Below Threshold",
+                    "Margin Risk Assessment": "Below Threshold",
+                    "Performance Diagnostic Assignment": "Margin Risk – Investigate",
+                    "Marketing Spend Efficiency": "",
+                    "Ranking Priority": 2
                 },
                 {
-                    "Category": "610400 Building & land rent",
-                    "Jun 2025": 16144,
-                    "June vs Jan–May Avg ($)": 0,
-                    "Performance Diagnostic Summary": "🟢 Stable or Fixed – Low Concern",
-                    "Margin Leverage Classification": "Normal Risk",
-                    "Ratio_Change_June_vs_MeanPrior": 0,
-                    "Fixed Cost Estimate": 16144.00,
-                    "Marginal Cost per $1 GP": 0,
-                    "ROI Efficiency": 1.0,
-                    "Efficiency Alert": "",
+                    "Category": "Net Other Income/Expense",
+                    "January": -3328.87,
+                    "February": -4545.14,
+                    "March": -3460.13,
+                    "April": -10716.94,
+                    "May": -4673.57,
+                    "Nonzero Month Count": 5,
+                    "One Time Expense": false,
+                    "Marginal Cost per $1 GP": 0.0,
+                    "Fixed Cost Estimate": -5344.93,
+                    "R² Linear": 0.0181,
+                    "Elasticity (Log-Log)": 0,
+                    "Anchor Month Deviates from Trend ($)": 1215.905209574297,
+                    "Model Status": "Clamped",
+                    "Estimated Anchor Month Expense": -5344.93,
+                    "Reconciled Anchor Month Expense": -3237.716674753547,
+                    "Estimated Future Expense": -5344.93,
+                    "Mean Prior Months Expense": -5512.77,
+                    "Mean All Months Expense": -5344.93,
+                    "Anchor vs Prior Avg ($)": 839.2000000000007,
+                    "Ratio_Change_Anchor_vs_MeanPrior": -0.1522283715808932,
+                    "Expense vs Profit Growth Ratio": 0.06020386891180868,
+                    "Expense Growth Alignment": "Costs Grew Slower than Profit",
                     "Best Performing (Cost Decline Rank)": "",
-                    "Expense vs Profit Growth Ratio": 1.0,
-                    "Marketing Spend Efficiency": ""
+                    "Efficiency Alert": "Below Threshold",
+                    "Elasticity Classification": "Below Threshold",
+                    "Margin Risk Assessment": "Below Threshold",
+                    "Performance Diagnostic Assignment": "Below Threshold",
+                    "Marketing Spend Efficiency": "",
+                    "Ranking Priority": 3
                 },
                 {
-                    "Category": "630000 Royalties",
-                    "Jun 2025": 12183,
-                    "June vs Jan–May Avg ($)": 0,
-                    "Performance Diagnostic Summary": "🟢 Stable or Fixed – Low Concern",
-                    "Margin Leverage Classification": "Normal Risk",
-                    "Ratio_Change_June_vs_MeanPrior": 0,
-                    "Fixed Cost Estimate": 12183.04,
-                    "Marginal Cost per $1 GP": 0,
-                    "ROI Efficiency": 1.0,
-                    "Efficiency Alert": "",
+                    "Category": "Supplies/Giveaways",
+                    "January": 1606.2,
+                    "February": 0.0,
+                    "March": 0.0,
+                    "April": 0.0,
+                    "May": 862.56,
+                    "Nonzero Month Count": 2,
+                    "One Time Expense": false,
+                    "Marginal Cost per $1 GP": 0.0,
+                    "Fixed Cost Estimate": 493.7520000000001,
+                    "R² Linear": 0.0,
+                    "Elasticity (Log-Log)": 0,
+                    "Anchor Month Deviates from Trend ($)": 0.0,
+                    "Model Status": "Insufficient-data",
+                    "Estimated Anchor Month Expense": 493.7520000000001,
+                    "Reconciled Anchor Month Expense": 299.0926136718186,
+                    "Estimated Future Expense": 493.7520000000001,
+                    "Mean Prior Months Expense": 401.55,
+                    "Mean All Months Expense": 493.7520000000001,
+                    "Anchor vs Prior Avg ($)": 461.0099999999999,
+                    "Ratio_Change_Anchor_vs_MeanPrior": 1.148076204706761,
+                    "Expense vs Profit Growth Ratio": -0.4540456460982601,
+                    "Expense Growth Alignment": "Costs Declined Despite Profit Growth",
                     "Best Performing (Cost Decline Rank)": "",
-                    "Expense vs Profit Growth Ratio": 1.0,
-                    "Marketing Spend Efficiency": ""
+                    "Efficiency Alert": "Below Threshold",
+                    "Elasticity Classification": "Below Threshold",
+                    "Margin Risk Assessment": "Below Threshold",
+                    "Performance Diagnostic Assignment": "Below Threshold",
+                    "Marketing Spend Efficiency": "",
+                    "Ranking Priority": 4
+                },
+                {
+                    "Category": "Physicians",
+                    "January": 481.86,
+                    "February": 0.0,
+                    "March": 196.4,
+                    "April": 193.22,
+                    "May": 538.44,
+                    "Nonzero Month Count": 4,
+                    "One Time Expense": false,
+                    "Marginal Cost per $1 GP": 0.0,
+                    "Fixed Cost Estimate": 281.984,
+                    "R² Linear": 0.8292,
+                    "Elasticity (Log-Log)": 0,
+                    "Anchor Month Deviates from Trend ($)": -12.74300624680268,
+                    "Model Status": "Clamped",
+                    "Estimated Anchor Month Expense": 281.984,
+                    "Reconciled Anchor Month Expense": 170.8131441971559,
+                    "Estimated Future Expense": 281.984,
+                    "Mean Prior Months Expense": 217.87,
+                    "Mean All Months Expense": 281.984,
+                    "Anchor vs Prior Avg ($)": 320.5700000000001,
+                    "Ratio_Change_Anchor_vs_MeanPrior": 1.471382016799009,
+                    "Expense vs Profit Growth Ratio": -0.5819078870687899,
+                    "Expense Growth Alignment": "Costs Declined Despite Profit Growth",
+                    "Best Performing (Cost Decline Rank)": "",
+                    "Efficiency Alert": "Below Threshold",
+                    "Elasticity Classification": "Below Threshold",
+                    "Margin Risk Assessment": "Below Threshold",
+                    "Performance Diagnostic Assignment": "Below Threshold",
+                    "Marketing Spend Efficiency": "",
+                    "Ranking Priority": 5
+                },
+                {
+                    "Category": "Medical Waste Removal",
+                    "January": 0.0,
+                    "February": 0.0,
+                    "March": 130.02,
+                    "April": 130.02,
+                    "May": 263.94,
+                    "Nonzero Month Count": 3,
+                    "One Time Expense": false,
+                    "Marginal Cost per $1 GP": 0.0,
+                    "Fixed Cost Estimate": 104.796,
+                    "R² Linear": 0.462,
+                    "Elasticity (Log-Log)": 0,
+                    "Anchor Month Deviates from Trend ($)": 60.2350312182221,
+                    "Model Status": "Clamped",
+                    "Estimated Anchor Month Expense": 104.796,
+                    "Reconciled Anchor Month Expense": 63.48067358178174,
+                    "Estimated Future Expense": 104.796,
+                    "Mean Prior Months Expense": 65.01,
+                    "Mean All Months Expense": 104.796,
+                    "Anchor vs Prior Avg ($)": 198.93,
+                    "Ratio_Change_Anchor_vs_MeanPrior": 3.059990770650669,
+                    "Expense vs Profit Growth Ratio": -1.210177060389181,
+                    "Expense Growth Alignment": "Costs Declined Despite Profit Growth",
+                    "Best Performing (Cost Decline Rank)": "",
+                    "Efficiency Alert": "Below Threshold",
+                    "Elasticity Classification": "Below Threshold",
+                    "Margin Risk Assessment": "Below Threshold",
+                    "Performance Diagnostic Assignment": "Below Threshold",
+                    "Marketing Spend Efficiency": "",
+                    "Ranking Priority": 6
                 }
             ],
 
@@ -904,15 +997,22 @@
             },
 
             parseExcel: function(arrayBuffer) {
+                console.log('parseExcel called');
+                console.log('ArrayBuffer size:', arrayBuffer.byteLength);
                 try {
                     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                    console.log('Workbook sheets:', workbook.SheetNames);
                     const firstSheetName = workbook.SheetNames[0];
                     const worksheet = workbook.Sheets[firstSheetName];
+                    console.log('Worksheet range:', worksheet['!ref']);
                     
                     const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
                         header: 1,
                         defval: ''
                     });
+
+                    console.log('Raw JSON data length:', jsonData.length);
+                    console.log('First few rows of raw data:', jsonData.slice(0, 3));
 
                     if (jsonData.length < 2) {
                         throw new Error('Excel file must contain at least a header row and one data row.');
@@ -921,32 +1021,54 @@
                     const headers = jsonData[0];
                     const dataRows = jsonData.slice(1);
 
+                    // Normalize headers: trim, replace multiple spaces/dashes with a single space, and lowercase
+                    const normalizedHeaders = headers.map(h => h ? h.toString().replace(/[\s\-]+/g, ' ').trim() : '');
+
                     const processedData = dataRows.filter(row => {
                         return row[0] && row[0].toString().trim() !== '';
-                    }).map(row => {
+                    }).map((row) => {
                         const obj = {};
-                        headers.forEach((header, index) => {
+                        normalizedHeaders.forEach((header, index) => {
                             obj[header] = row[index] || '';
                         });
-
+                        if (row === dataRows[0]) {
+                            console.log('First parsed object (normalized headers):', obj);
+                            Object.entries(obj).forEach(([k, v]) => {
+                                console.log(`Key: '${k}' | Value: '${v}' | Char codes:`, k.split('').map(c => c.charCodeAt(0)));
+                            });
+                        }
+                        const expenseGrowthAlignment = String(
+                            obj['Expense Growth Alignment'] ||
+                            ''
+                        ).trim();
+                        // Debug for Render environment - check first few rows
+                        if (row === dataRows[0] || row === dataRows[1] || row === dataRows[2]) {
+                            console.log(`=== RENDER DEBUG ROW ${dataRows.indexOf(row)} ===`);
+                            console.log('Category:', obj['Category']);
+                            console.log('Raw Expense Growth Alignment value:', obj['Expense Growth Alignment']);
+                            console.log('Processed value:', expenseGrowthAlignment);
+                            console.log('All keys in this row:', Object.keys(obj));
+                            console.log('=== END DEBUG ===');
+                        }
+                        console.log(`Processing ${obj['Category']}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
                         return {
-                            "Category": String(obj.Category || '').trim(),
+                            "Category": String(obj['Category'] || '').trim(),
+                            "May": parseFloat(obj['May']) || 0,
                             "Jun 2025": parseFloat(obj['Jun 2025']) || 0,
-                            "June vs Jan–May Avg ($)": parseFloat(obj['June vs Jan–May Avg ($)']) || 0,
-                            "Performance Diagnostic Summary": String(obj['Performance Diagnostic Assignment'] || '').trim(),
-                            "Margin Leverage Classification": obj['Margin Risk'] === true ? 'High Risk' : 'Normal Risk',
-                            "Ratio_Change_June_vs_MeanPrior": parseFloat(obj['Ratio_Change_June_vs_MeanPrior']) || 0,
+                            "Anchor vs Prior Avg ($)": parseFloat(obj['Anchor vs Prior Avg ($)']) || 0,
+                            "Performance Diagnostic Summary": String(obj['Margin Risk Assessment'] || '').trim(),
+                            "Margin Leverage Classification": obj['Margin Risk Assessment'] === true ? 'High Risk' : 'Normal Risk',
+                            "Ratio_Change_Anchor_vs_MeanPrior": parseFloat(obj['Ratio_Change_Anchor_vs_MeanPrior']) || 0,
                             "Fixed Cost Estimate": parseFloat(obj['Fixed Cost Estimate']) || 0,
                             "Marginal Cost per $1 GP": parseFloat(obj['Marginal Cost per $1 GP']) || 0,
                             "ROI Efficiency": parseFloat(obj['ROI Efficiency']) || 0,
                             "Efficiency Alert": String(obj['Efficiency Alert'] || '').trim(),
                             "Best Performing (Cost Decline Rank)": obj['Best Performing (Cost Decline Rank)'] || "",
-                            "Expense vs Profit Growth Ratio": parseFloat(obj['Expense vs Profit Growth Ratio']) || 0,
+                            "Expense Growth Alignment": expenseGrowthAlignment,
                             "Marketing Spend Efficiency": String(obj['Marketing Spend Efficiency'] || '').trim()
                         };
                     });
 
-                    console.log(`Successfully parsed ${processedData.length} records from Excel file`);
                     return processedData;
                 } catch (error) {
                     console.error('Excel parsing error:', error);
@@ -974,14 +1096,15 @@
             },
 
             loadPreloadedData: function() {
-                console.log('Loading pre-loaded data...');
+                console.log('loadPreloadedData called');
                 
                 // Add cache-busting timestamp to prevent caching
                 const timestamp = new Date().getTime();
                 
                 // Try multiple sources for the Excel file with cache-busting
                 const sources = [
-                    `/expense-analysis.xlsx?t=${timestamp}`
+                    `/expense-analysis.xlsx?t=${timestamp}&v=${Date.now()}`,
+                    `/public/expense-analysis.xlsx?t=${timestamp}&v=${Date.now()}`
                 ];
                 
                 const tryFetch = async (url) => {
@@ -1216,36 +1339,45 @@
 
                 // Filter out excluded categories from the table display
                 const tableData = this.filteredData.filter(item => 
-                    !this.isExcludedFromProjections(item.Category)
+                    !this.isExcludedFromProjections(item.Category) &&
+                    item.Category.toLowerCase().trim() !== 'net ordinary income' &&
+                    item.Category.toLowerCase().trim() !== 'gross profit'
                 );
+
+                // Debug: print keys of first row
+                if (tableData.length > 0) {
+                    console.log('First row keys in filteredData:', Object.keys(tableData[0]));
+                    console.log('First row in filteredData:', tableData[0]);
+                }
 
                 if (tableData.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6">No data available</td></tr>';
                     return;
                 }
 
-                const performancePriority = {
-                    '🟠 Cost Spike – Monitor': 1,
-                    'Cost Spike – Monitor': 1,
-                    '🔴 Margin Risk – Investigate': 2,
-                    'Margin Risk – Investigate': 2,
-                    '🟢 Stable or Fixed – Low Concern': 3,
-                    'Stable or Fixed – Low Concern': 3,
-                    '🗾 Neutral – Keep Watching': 4,
-                    'Neutral – Keep Watching': 4
+                const suggestedActionPriority = {
+                    'Investigate - Potential Risk': 1,
+                    'Efficient Scaling': 2,
+                    'Productivity Gain': 3,
+                    'Strong Cost Control': 4,
+                    'Review Volatility': 5,
+                    'No Comparison': 6,
+                    'Stable - No Action': 7,
+                    'Below Threshold': 8
                 };
 
                 const sortedData = [...tableData].sort((a, b) => {
-                    const aPriority = performancePriority[a['Performance Diagnostic Summary']] || 999;
-                    const bPriority = performancePriority[b['Performance Diagnostic Summary']] || 999;
+                    const aAction = a['Efficiency Alert'] || 'N/A';
+                    const bAction = b['Efficiency Alert'] || 'N/A';
+                    const aPriority = suggestedActionPriority[aAction] || 999;
+                    const bPriority = suggestedActionPriority[bAction] || 999;
                     
                     if (aPriority !== bPriority) {
                         return aPriority - bPriority;
                     }
                     
-                    const aVariance = Math.abs(a['June vs Jan–May Avg ($)'] || 0);
-                    const bVariance = Math.abs(b['June vs Jan–May Avg ($)'] || 0);
-                    return bVariance - aVariance;
+                    // Within the same action group, sort by category name
+                    return (a.Category || '').localeCompare(b.Category || '');
                 });
 
                 let tableHTML = '';
@@ -1255,24 +1387,26 @@
                     // Category
                     tableHTML += `<td>${item.Category || 'N/A'}</td>`;
                     
-                    // June Expenses
-                    const juneExpenses = item['Jun 2025'] || 0;
-                    tableHTML += `<td>${Math.round(juneExpenses).toLocaleString()}</td>`;
+                    // Expenses for Most Recent Month (now from 'May')
+                    const mayExpenses = item['May'] || 0;
+                    tableHTML += `<td class="center-column">${Math.round(mayExpenses).toLocaleString()}</td>`;
                     
-                    // June vs. Jan-May Mean
-                    const varianceValue = item['June vs Jan–May Avg ($)'] || 0;
-                    tableHTML += `<td>${Math.round(varianceValue).toLocaleString()}</td>`;
-                    
-                    // Ratio Change (%)
-                    const ratioChangeValue = item['Ratio_Change_June_vs_MeanPrior'] || 0;
-                    tableHTML += `<td class="center-column">${Math.round(ratioChangeValue * 100)}%</td>`;
+                    // Most Recent Month vs. Avg. of Prior Months
+                    const anchorPriorValue = item['Anchor vs Prior Avg ($)'] || 0;
+                    tableHTML += `<td class="center-column">${Math.round(anchorPriorValue).toLocaleString()}</td>`;
                     
                     // Performance Diagnostic
                     tableHTML += `<td class="center-column">${item['Performance Diagnostic Summary'] || 'N/A'}</td>`;
                     
-                    // Expense vs Profit Growth Ratio
-                    const expenseProfitRatio = item['Expense vs Profit Growth Ratio'] || 0;
-                    tableHTML += `<td>${expenseProfitRatio.toFixed(2)}</td>`;
+                    // Expense Growth Alignment (as text)
+                    const expenseGrowthAlignment = item['Expense Growth Alignment'] || '';
+                    console.log(`Table row for ${item.Category}: Expense Growth Alignment = "${expenseGrowthAlignment}"`);
+                    console.log(`Full item for ${item.Category}:`, item);
+                    tableHTML += `<td class="center-column">${expenseGrowthAlignment}</td>`;
+
+                    // Suggested Action (using Efficiency Alert)
+                    const suggestedAction = item['Efficiency Alert'] || 'N/A';
+                    tableHTML += `<td class="center-column">${suggestedAction}</td>`;
 
                     tableHTML += '</tr>';
                 });
@@ -1283,15 +1417,15 @@
             updateInsights: function() {
                 // For most insights, filter out excluded categories
                 const insightData = this.filteredData.filter(item => 
-                    !this.isExcludedFromProjections(item.Category)
+                    !this.isExcludedFromProjections(item.Category) &&
+                    item.Category.toLowerCase().trim() !== 'net ordinary income' &&
+                    item.Category.toLowerCase().trim() !== 'gross profit'
                 );
 
-                // Expense Growth Outpaced Profit Growth
+                // Expenses Grew Faster Than Profit (using Expense Growth Alignment)
                 const outpacedCategories = insightData.filter(item => {
-                    const efficiencyAlert = String(item['Efficiency Alert'] || '').trim();
-                    return efficiencyAlert === 'Expense Outpaced Profit + Sensitive' || 
-                           efficiencyAlert === 'Expense Outpaced Profit' ||
-                           efficiencyAlert === 'Expense Outpaced Profit and Responsive';
+                    const growthAlignment = String(item['Expense Growth Alignment'] || '').trim();
+                    return growthAlignment === 'Expenses Grew Faster Than Profit';
                 });
                 
                 const expenseOutpacedElement = document.getElementById('expenseOutpacedText');
@@ -1300,22 +1434,40 @@
                         const categoryNames = outpacedCategories.map(item => item.Category);
                         expenseOutpacedElement.textContent = `(${outpacedCategories.length}) ${categoryNames.join(', ')}`;
                     } else {
-                        expenseOutpacedElement.textContent = '(0) No categories found';
+                        expenseOutpacedElement.textContent = '(0) No expense category in the most recent month fits this metric.';
                     }
                 }
 
-                // Highest June variance
-                const topVariance = insightData
+                // Expenses Grew Even Though Profit Declined (using Expense Growth Alignment)
+                const grewDespiteDeclineCategories = insightData.filter(item => {
+                    const growthAlignment = String(item['Expense Growth Alignment'] || '').trim();
+                    return growthAlignment === 'Expenses Grew Even Though Profit Declined';
+                });
+                
+                const expenseGrewDespiteDeclineElement = document.getElementById('expenseGrewDespiteDeclineText');
+                if (expenseGrewDespiteDeclineElement) {
+                    if (grewDespiteDeclineCategories.length > 0) {
+                        const categoryNames = grewDespiteDeclineCategories.map(item => item.Category);
+                        expenseGrewDespiteDeclineElement.textContent = `(${grewDespiteDeclineCategories.length}) ${categoryNames.join(', ')}`;
+                    } else {
+                        expenseGrewDespiteDeclineElement.textContent = '(0) No expense category in the most recent month fits this metric.';
+                    }
+                }
+
+                // Highest variance (exclude Net Ordinary Expense and Gross Profit)
+                const topVariance = this.filteredData
                     .filter(item => {
-                        const variance = item['June vs Jan–May Avg ($)'];
-                        return variance !== undefined && variance !== null && variance !== 0;
+                        const variance = item['Anchor vs Prior Avg ($)'];
+                        const cat = (item.Category || '').toLowerCase().trim();
+                        return variance !== undefined && variance !== null && variance !== 0 &&
+                            cat !== 'net ordinary income' && cat !== 'gross profit' && cat !== 'net ordinary expense';
                     })
-                    .sort((a, b) => Math.abs(b['June vs Jan–May Avg ($)']) - Math.abs(a['June vs Jan–May Avg ($)']))[0];
+                    .sort((a, b) => Math.abs(b['Anchor vs Prior Avg ($)']) - Math.abs(a['Anchor vs Prior Avg ($)']))[0];
                 
                 const topVarianceElement = document.getElementById('topVarianceText');
                 if (topVarianceElement) {
                     if (topVariance) {
-                        const varianceAmount = Math.round(topVariance['June vs Jan–May Avg ($)']);
+                        const varianceAmount = Math.round(topVariance['Anchor vs Prior Avg ($)']);
                         const sign = varianceAmount >= 0 ? '+' : '-';
                         const formattedVariance = `(${sign}${Math.abs(varianceAmount).toLocaleString()})`;
                         topVarianceElement.textContent = `${topVariance.Category} ${formattedVariance}`;
@@ -1344,24 +1496,29 @@
                             .join(', ');
                         topMarginElement.textContent = formattedList;
                     } else {
-                        topMarginElement.textContent = 'No performance ranking data available';
+                        topMarginElement.textContent = '(0) No expense category in the most recent month fits this metric.';
                     }
                 }
 
-                // Marketing Spend Efficiency - include marketing total categories
+                // Marketing Spend Efficiency - always include Total Marketing & Advertising and Advertising & Marketing Fund
                 const marketingEfficiencyCategories = this.filteredData.filter(item => {
                     const efficiency = item['Marketing Spend Efficiency'];
                     const hasEfficiencyData = efficiency && efficiency.toString().trim() !== '';
-                    
+                    const cat = (item.Category || '').toLowerCase().trim();
+                    const isMarketingSpecial = cat === 'total marketing & advertising' || cat === 'advertising & marketing fund';
                     // Include if it has efficiency data AND either:
                     // 1. It's not excluded (regular expense categories), OR
                     // 2. It's specifically a marketing total category
-                    const isMarketingTotal = item.Category.toLowerCase().includes('total 614000 marketing');
                     const isNotExcluded = !this.isExcludedFromProjections(item.Category);
-                    
-                    return hasEfficiencyData && (isNotExcluded || isMarketingTotal);
+                    return hasEfficiencyData && (isNotExcluded || isMarketingSpecial);
                 });
-                
+                // Ensure both special marketing categories are always included if present
+                ['total marketing & advertising', 'advertising & marketing fund'].forEach(specialCat => {
+                    const found = this.originalData.find(item => (item.Category || '').toLowerCase().trim() === specialCat);
+                    if (found && found['Marketing Spend Efficiency'] && !marketingEfficiencyCategories.some(item => (item.Category || '').toLowerCase().trim() === specialCat)) {
+                        marketingEfficiencyCategories.push(found);
+                    }
+                });
                 const roiElement = document.getElementById('marketingROIText');
                 if (roiElement) {
                     if (marketingEfficiencyCategories.length > 0) {
@@ -1379,12 +1536,11 @@
                 const estimatedGPInput = document.getElementById('estimatedGP');
                 const estimatedGP = estimatedGPInput ? parseFloat(estimatedGPInput.value) || 0 : 147081;
                 
-                console.log('=== PROJECTION CALCULATION DEBUG ===');
-                console.log('Model data count:', this.modelData.length);
-                console.log('Estimated GP:', estimatedGP);
-                
-                // Calculate projections for all model data
-                const projections = this.modelData.map(item => {
+                // Calculate projections for all model data, excluding Net Ordinary Income and Gross Profit
+                const projections = this.modelData.filter(item =>
+                    item.Category.toLowerCase().trim() !== 'net ordinary income' &&
+                    item.Category.toLowerCase().trim() !== 'gross profit'
+                ).map(item => {
                     const projectedExpense = item["Fixed Cost Estimate"] + (item["Marginal Cost per $1 GP"] * estimatedGP);
                     return {
                         ...item,
@@ -1392,17 +1548,8 @@
                     };
                 });
 
-                console.log('All projections:');
-                projections.forEach(p => {
-                    console.log(`  ${p.Category}: $${p["Projected Expense"].toLocaleString()}`);
-                });
-
-                // Calculate total (no additional filtering needed since modelData is already clean)
                 const totalProjectedExpenses = projections.reduce((sum, item) => sum + item["Projected Expense"], 0);
                 const projectedProfit = estimatedGP - totalProjectedExpenses;
-
-                console.log('Total Projected Expenses:', totalProjectedExpenses.toLocaleString());
-                console.log('Projected Profit:', projectedProfit.toLocaleString());
 
                 const totalExpensesElement = document.getElementById('totalProjectedExpenses');
                 const projectedProfitElement = document.getElementById('projectedProfit');
@@ -1553,6 +1700,7 @@
         };
 
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard loaded at:', new Date().toISOString());
             window.dashboard.init();
             // Automatically load pre-loaded data
             window.dashboard.loadPreloadedData();
